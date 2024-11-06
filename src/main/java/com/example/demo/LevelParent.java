@@ -2,7 +2,6 @@ package com.example.demo;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
 import javafx.animation.*;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -29,9 +28,13 @@ public abstract class LevelParent extends Observable {
 	private final List<ActiveActorDestructible> enemyUnits;
 	private final List<ActiveActorDestructible> userProjectiles;
 	private final List<ActiveActorDestructible> enemyProjectiles;
-	
+
 	private int currentNumberOfEnemies;
 	private LevelView levelView;
+
+	// 新增的标志位，确保场景和背景仅初始化一次
+	private boolean isSceneInitialized = false;
+	private boolean isBackgroundInitialized = false;
 
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth) {
 		this.root = new Group();
@@ -54,23 +57,29 @@ public abstract class LevelParent extends Observable {
 	}
 
 	protected abstract void initializeFriendlyUnits();
-
 	protected abstract void checkIfGameOver();
-
 	protected abstract void spawnEnemyUnits();
-
 	protected abstract LevelView instantiateLevelView();
 
 	public Scene initializeScene() {
-		initializeBackground();
-		initializeFriendlyUnits();
-		levelView.showHeartDisplay();
+		// 仅在场景未初始化时执行初始化操作
+		if (!isSceneInitialized) {
+			System.out.println("Initializing scene...");
+			initializeBackground();
+			initializeFriendlyUnits();
+			levelView.showHeartDisplay();
+			isSceneInitialized = true; // 标记场景已初始化
+		} else {
+			System.out.println("Scene is already initialized.");
+		}
 		return scene;
 	}
 
 	public void startGame() {
 		background.requestFocus();
-		timeline.play();
+		if (timeline.getStatus() != Animation.Status.RUNNING) {
+			timeline.play();
+		}
 	}
 
 	public void goToNextLevel(String levelName) {
@@ -79,6 +88,7 @@ public abstract class LevelParent extends Observable {
 	}
 
 	private void updateScene() {
+		removeAllDestroyedActors(); // 清理已销毁的对象
 		spawnEnemyUnits();
 		updateActors();
 		generateEnemyFire();
@@ -87,7 +97,6 @@ public abstract class LevelParent extends Observable {
 		handleUserProjectileCollisions();
 		handleEnemyProjectileCollisions();
 		handlePlaneCollisions();
-		removeAllDestroyedActors();
 		updateKillCount();
 		updateLevelView();
 		checkIfGameOver();
@@ -99,25 +108,33 @@ public abstract class LevelParent extends Observable {
 		timeline.getKeyFrames().add(gameLoop);
 	}
 
+
 	private void initializeBackground() {
-		background.setFocusTraversable(true);
-		background.setFitHeight(screenHeight);
-		background.setFitWidth(screenWidth);
-		background.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			public void handle(KeyEvent e) {
-				KeyCode kc = e.getCode();
-				if (kc == KeyCode.UP) user.moveUp();
-				if (kc == KeyCode.DOWN) user.moveDown();
-				if (kc == KeyCode.SPACE) fireProjectile();
-			}
-		});
-		background.setOnKeyReleased(new EventHandler<KeyEvent>() {
-			public void handle(KeyEvent e) {
-				KeyCode kc = e.getCode();
-				if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
-			}
-		});
-		root.getChildren().add(background);
+		// 仅在背景未初始化时执行初始化操作
+		if (!isBackgroundInitialized) {
+			System.out.println("Initializing background...");
+			background.setFocusTraversable(true);
+			background.setFitHeight(screenHeight);
+			background.setFitWidth(screenWidth);
+			background.setOnKeyPressed(new EventHandler<KeyEvent>() {
+				public void handle(KeyEvent e) {
+					KeyCode kc = e.getCode();
+					if (kc == KeyCode.UP) user.moveUp();
+					if (kc == KeyCode.DOWN) user.moveDown();
+					if (kc == KeyCode.SPACE) fireProjectile();
+				}
+			});
+			background.setOnKeyReleased(new EventHandler<KeyEvent>() {
+				public void handle(KeyEvent e) {
+					KeyCode kc = e.getCode();
+					if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
+				}
+			});
+			root.getChildren().add(background);
+			isBackgroundInitialized = true; // 标记背景已初始化
+		} else {
+			System.out.println("Background already initialized.");
+		}
 	}
 
 	private void fireProjectile() {
@@ -152,7 +169,8 @@ public abstract class LevelParent extends Observable {
 	}
 
 	private void removeDestroyedActors(List<ActiveActorDestructible> actors) {
-		List<ActiveActorDestructible> destroyedActors = actors.stream().filter(actor -> actor.isDestroyed())
+		List<ActiveActorDestructible> destroyedActors = actors.stream()
+				.filter(actor -> actor.isDestroyed())
 				.collect(Collectors.toList());
 		root.getChildren().removeAll(destroyedActors);
 		actors.removeAll(destroyedActors);
@@ -170,13 +188,14 @@ public abstract class LevelParent extends Observable {
 		handleCollisions(enemyProjectiles, friendlyUnits);
 	}
 
-	private void handleCollisions(List<ActiveActorDestructible> actors1,
-			List<ActiveActorDestructible> actors2) {
+	private void handleCollisions(List<ActiveActorDestructible> actors1, List<ActiveActorDestructible> actors2) {
 		for (ActiveActorDestructible actor : actors2) {
 			for (ActiveActorDestructible otherActor : actors1) {
 				if (actor.getBoundsInParent().intersects(otherActor.getBoundsInParent())) {
 					actor.takeDamage();
 					otherActor.takeDamage();
+					if (actor.isDestroyed()) actor.destroy();
+					if (otherActor.isDestroyed()) otherActor.destroy();
 				}
 			}
 		}
@@ -196,9 +215,19 @@ public abstract class LevelParent extends Observable {
 	}
 
 	private void updateKillCount() {
-		for (int i = 0; i < currentNumberOfEnemies - enemyUnits.size(); i++) {
+		List<ActiveActorDestructible> destroyedEnemies = enemyUnits.stream()
+				.filter(ActiveActorDestructible::isDestroyed)
+				.collect(Collectors.toList());
+
+		for (ActiveActorDestructible enemy : destroyedEnemies) {
 			user.incrementKillCount();
+			System.out.println("Destroyed an enemy, current kill count: " + user.getNumberOfKills());
 		}
+
+		enemyUnits.removeAll(destroyedEnemies);
+		root.getChildren().removeAll(destroyedEnemies);
+
+		currentNumberOfEnemies = enemyUnits.size();
 	}
 
 	private boolean enemyHasPenetratedDefenses(ActiveActorDestructible enemy) {
@@ -247,5 +276,4 @@ public abstract class LevelParent extends Observable {
 	private void updateNumberOfEnemies() {
 		currentNumberOfEnemies = enemyUnits.size();
 	}
-
 }

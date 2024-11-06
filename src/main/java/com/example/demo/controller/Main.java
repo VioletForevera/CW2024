@@ -24,6 +24,13 @@ public class Main extends Application {
 	}
 
 	public static void main(String[] args) {
-		launch();
+		// 设置全局未捕获异常处理器
+		Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+			System.err.println("Uncaught exception: " + throwable.getMessage());
+			throwable.printStackTrace();
+		});
+
+		// 启动JavaFX应用程序
+		launch(args);
 	}
 }
