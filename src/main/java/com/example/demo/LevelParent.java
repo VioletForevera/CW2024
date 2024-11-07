@@ -32,7 +32,6 @@ public abstract class LevelParent extends Observable {
 	private int currentNumberOfEnemies;
 	private LevelView levelView;
 
-	// 新增的标志位，确保场景和背景仅初始化一次
 	private boolean isSceneInitialized = false;
 	private boolean isBackgroundInitialized = false;
 
@@ -62,13 +61,12 @@ public abstract class LevelParent extends Observable {
 	protected abstract LevelView instantiateLevelView();
 
 	public Scene initializeScene() {
-		// 仅在场景未初始化时执行初始化操作
 		if (!isSceneInitialized) {
 			System.out.println("Initializing scene...");
 			initializeBackground();
 			initializeFriendlyUnits();
 			levelView.showHeartDisplay();
-			isSceneInitialized = true; // 标记场景已初始化
+			isSceneInitialized = true;
 		} else {
 			System.out.println("Scene is already initialized.");
 		}
@@ -88,7 +86,7 @@ public abstract class LevelParent extends Observable {
 	}
 
 	private void updateScene() {
-		removeAllDestroyedActors(); // 清理已销毁的对象
+		removeAllDestroyedActors();
 		spawnEnemyUnits();
 		updateActors();
 		generateEnemyFire();
@@ -108,9 +106,7 @@ public abstract class LevelParent extends Observable {
 		timeline.getKeyFrames().add(gameLoop);
 	}
 
-
 	private void initializeBackground() {
-		// 仅在背景未初始化时执行初始化操作
 		if (!isBackgroundInitialized) {
 			System.out.println("Initializing background...");
 			background.setFocusTraversable(true);
@@ -131,7 +127,7 @@ public abstract class LevelParent extends Observable {
 				}
 			});
 			root.getChildren().add(background);
-			isBackgroundInitialized = true; // 标记背景已初始化
+			isBackgroundInitialized = true;
 		} else {
 			System.out.println("Background already initialized.");
 		}
@@ -259,6 +255,10 @@ public abstract class LevelParent extends Observable {
 	protected void addEnemyUnit(ActiveActorDestructible enemy) {
 		enemyUnits.add(enemy);
 		root.getChildren().add(enemy);
+		if (enemy instanceof Boss) {
+			ShieldImage shield = ((Boss) enemy).getShieldImage();
+			root.getChildren().add(shield);
+		}
 	}
 
 	protected double getEnemyMaximumYPosition() {

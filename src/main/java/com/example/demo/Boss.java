@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import javafx.scene.Group;
 import java.util.*;
 
 public class Boss extends FighterPlane {
@@ -19,19 +20,33 @@ public class Boss extends FighterPlane {
 	private static final int Y_POSITION_UPPER_BOUND = -100;
 	private static final int Y_POSITION_LOWER_BOUND = 475;
 	private static final int MAX_FRAMES_WITH_SHIELD = 500;
+
 	private final List<Integer> movePattern;
 	private boolean isShielded;
 	private int consecutiveMovesInSameDirection;
 	private int indexOfCurrentMove;
 	private int framesWithShieldActivated;
+	private final ShieldImage shieldImage;
 
+	// Constructor with optional Group parameter
 	public Boss() {
+		this(null); // Default to no Group passed
+	}
+
+	public Boss(Group root) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, HEALTH);
-		movePattern = new ArrayList<>();
-		consecutiveMovesInSameDirection = 0;
-		indexOfCurrentMove = 0;
-		framesWithShieldActivated = 0;
-		isShielded = false;
+		this.movePattern = new ArrayList<>();
+		this.consecutiveMovesInSameDirection = 0;
+		this.indexOfCurrentMove = 0;
+		this.framesWithShieldActivated = 0;
+		this.isShielded = false;
+
+		// Initialize shield image
+		this.shieldImage = new ShieldImage(INITIAL_X_POSITION, INITIAL_Y_POSITION);
+		if (root != null) {
+			root.getChildren().add(shieldImage); // Add shield image to root if available
+		}
+
 		initializeMovePattern();
 	}
 
@@ -40,11 +55,18 @@ public class Boss extends FighterPlane {
 		double initialTranslateY = getTranslateY();
 		moveVertically(getNextMove());
 		double currentPosition = getLayoutY() + getTranslateY();
+
+		// Limit the vertical position of the Boss
 		if (currentPosition < Y_POSITION_UPPER_BOUND || currentPosition > Y_POSITION_LOWER_BOUND) {
 			setTranslateY(initialTranslateY);
 		}
+
+		// Synchronize the position of the shield to the position of the boss.
+		shieldImage.setLayoutX(getLayoutX() + getTranslateX()); // Update X-coordinate
+		shieldImage.setLayoutY(getLayoutY() + getTranslateY()); // Update Y-coordinate
 	}
-	
+
+
 	@Override
 	public void updateActor() {
 		updatePosition();
@@ -55,7 +77,7 @@ public class Boss extends FighterPlane {
 	public ActiveActorDestructible fireProjectile() {
 		return bossFiresInCurrentFrame() ? new BossProjectile(getProjectileInitialPosition()) : null;
 	}
-	
+
 	@Override
 	public void takeDamage() {
 		if (!isShielded) {
@@ -73,9 +95,17 @@ public class Boss extends FighterPlane {
 	}
 
 	private void updateShield() {
-		if (isShielded) framesWithShieldActivated++;
-		else if (shieldShouldBeActivated()) activateShield();	
-		if (shieldExhausted()) deactivateShield();
+		if (isShielded) {
+			framesWithShieldActivated++;
+			shieldImage.showShield();  // Ensure shield is visible when activated
+		} else if (shieldShouldBeActivated()) {
+			activateShield();
+			shieldImage.showShield();  // Show shield immediately upon activation
+		}
+		if (shieldExhausted()) {
+			deactivateShield();
+			shieldImage.hideShield();  // Hide shield when deactivated
+		}
 	}
 
 	private int getNextMove() {
@@ -117,4 +147,7 @@ public class Boss extends FighterPlane {
 		framesWithShieldActivated = 0;
 	}
 
+	public ShieldImage getShieldImage() {
+		return shieldImage;
+	}
 }
