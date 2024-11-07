@@ -11,7 +11,7 @@ Initialize Shield with Boss in Constructor
 A ShieldImage instance was added as a property of the Boss class. This instance is created when the Boss is instantiated and is added to the main game root group for visibility. Additionally, the shield image format was changed from JPG to PNG to ensure proper display.
 Code snippet:
 java
-
+复制代码
 public Boss(Group root) {
     super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, HEALTH);
     this.shieldImage = new ShieldImage(INITIAL_X_POSITION, INITIAL_Y_POSITION);
@@ -22,7 +22,7 @@ Synchronize Shield Position with Boss
 To ensure the shield follows the Boss, the updatePosition() method in Boss was modified to update the shield’s layout position based on the Boss’s current coordinates.
 Code snippet:
 java
-
+复制代码
 @Override
 public void updatePosition() {
     moveVertically(getNextMove());
@@ -34,7 +34,7 @@ Control Shield Visibility
 Modified the updateShield() method to control the visibility of the shield image based on whether the shield is active. When the shield is activated, showShield() is called, and when deactivated, hideShield() is called.
 Code snippet:
 java
-
+复制代码
 private void updateShield() {
     if (isShielded) {
         framesWithShieldActivated++;
