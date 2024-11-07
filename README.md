@@ -1,52 +1,69 @@
 6/11Test-(bugfix) Branch
-Bug Fix: Shield Display and Positioning for Boss
-Issue
-Problem: The shield for the Boss character was either not displayed or did not move along with the Boss as it changed positions on the screen.
-Cause: The shield image was initialized but not properly synchronized with the Boss's position during movement updates.
-Solution
-To fix the shield display and positioning issue for the Boss, the following steps were taken:
+Bug Fixes: Scene Initialization, Enemy Kill Count, Boss Level Entry, and Enemy Management
+Issues and Solutions
+Fix for Duplicate Scene Initialization
 
-Initialize Shield with Boss in Constructor
-
-A ShieldImage instance was added as a property of the Boss class. This instance is created when the Boss is instantiated and is added to the main game root group for visibility. Additionally, the shield image format was changed from JPG to PNG to ensure proper display.
+Problem: The scene was initialized multiple times, leading to resource waste and potential display errors.
+Solution: Added a flag isSceneInitialized in the initializeScene() method. This flag is checked before initializing to ensure the scene is only set up once.
 Code snippet:
 java
-```java
-public Boss(Group root) {
-    super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, HEALTH);
-    this.shieldImage = new ShieldImage(INITIAL_X_POSITION, INITIAL_Y_POSITION);
-    root.getChildren().add(shieldImage);
-}```
-Synchronize Shield Position with Boss
-
-To ensure the shield follows the Boss, the updatePosition() method in Boss was modified to update the shield’s layout position based on the Boss’s current coordinates.
-Code snippet:
-java
-复制代码
-@Override
-public void updatePosition() {
-    moveVertically(getNextMove());
-    shieldImage.setLayoutX(getLayoutX());
-    shieldImage.setLayoutY(getLayoutY());
+复制
+public Scene initializeScene() {
+    if (!isSceneInitialized) {
+        initializeBackground();
+        initializeFriendlyUnits();
+        levelView.showHeartDisplay();
+        isSceneInitialized = true;
+    }
+    return scene;
 }
-Control Shield Visibility
+Corrected Enemy Kill Count Updates
 
-Modified the updateShield() method to control the visibility of the shield image based on whether the shield is active. When the shield is activated, showShield() is called, and when deactivated, hideShield() is called.
+Problem: Enemy kill count was not updating correctly upon enemy destruction, resulting in inaccurate scoring.
+Solution: Updated the updateKillCount() method to increment the kill count whenever an enemy is destroyed. Removed destroyed enemies from the list and scene.
 Code snippet:
 java
 复制代码
-private void updateShield() {
-    if (isShielded) {
-        framesWithShieldActivated++;
-        shieldImage.showShield();
-    } else if (shieldShouldBeActivated()) {
-        activateShield();
-        shieldImage.showShield();
+private void updateKillCount() {
+    List<ActiveActorDestructible> destroyedEnemies = enemyUnits.stream()
+        .filter(ActiveActorDestructible::isDestroyed)
+        .collect(Collectors.toList());
+
+    for (ActiveActorDestructible enemy : destroyedEnemies) {
+        user.incrementKillCount();
     }
-    if (shieldExhausted()) {
-        deactivateShield();
-        shieldImage.hideShield();
-    }
+
+    enemyUnits.removeAll(destroyedEnemies);
+    root.getChildren().removeAll(destroyedEnemies);
+}
+Ensured Proper Entry into the Boss Level
+
+Problem: The game did not transition correctly to the Boss level when conditions were met, causing interruptions in gameplay flow.
+Solution: Used an observer pattern in the main flow, enabling a seamless transition when conditions were met. Modified the goToNextLevel() method to notify observers when moving to the Boss level.
+Code snippet:
+java
+复制代码
+public void goToNextLevel(String levelName) {
+    setChanged();
+    notifyObservers(levelName);
+}
+Fixed Enemy Generation and Destruction Logic
+
+Problem: Inconsistent logic in enemy generation and destruction led to display issues and improper removal of enemy objects from the screen.
+Solution: Regularly spawn enemies in spawnEnemyUnits() and ensure that destroyed enemies are removed from the list and scene in removeAllDestroyedActors().
+Code snippet:
+java
+复制代码
+private void removeAllDestroyedActors() {
+    removeDestroyedActors(enemyUnits);
+}
+
+private void removeDestroyedActors(List<ActiveActorDestructible> actors) {
+    List<ActiveActorDestructible> destroyedActors = actors.stream()
+        .filter(ActiveActorDestructible::isDestroyed)
+        .collect(Collectors.toList());
+    root.getChildren().removeAll(destroyedActors);
+    actors.removeAll(destroyedActors);
 }
 Summary
-This fix ensures that the shield image appears correctly when the Boss activates its shield and moves in sync with the Boss character. This improvement enhances visual accuracy and gameplay experience.
+These fixes ensure efficient scene initialization, accurate enemy kill tracking, smooth Boss level transition, and correct handling of enemy generation and destruction. This enhances game stability and overall user experience.
