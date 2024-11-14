@@ -113,6 +113,8 @@ public class Boss extends FighterPlane {
 		consecutiveMovesInSameDirection++;
 		if (consecutiveMovesInSameDirection == MAX_FRAMES_WITH_SAME_MOVE) {
 			Collections.shuffle(movePattern);
+
+			
 			consecutiveMovesInSameDirection = 0;
 			indexOfCurrentMove++;
 		}
