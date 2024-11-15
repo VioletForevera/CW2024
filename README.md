@@ -1,4 +1,5 @@
-#To implement the health bar and adjustable hitbox for the Boss character, the following steps were taken:
+### Solution
+To implement the health bar and adjustable hitbox for the Boss character, the following steps were taken:
 
 1. **Add Health Bar Below Boss**
    - Created a health bar below the Boss character, which decreases in size as the health decreases.
