@@ -1,21 +1,73 @@
 package com.example.demo;
 
+import javafx.scene.Group;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+
 public abstract class FighterPlane extends ActiveActorDestructible {
 
 	private int health;
+	private Rectangle hitbox;
 
 	public FighterPlane(String imageName, int imageHeight, double initialXPos, double initialYPos, int health) {
 		super(imageName, imageHeight, initialXPos, initialYPos);
 		this.health = health;
+
+		// 初始化 hitbox
+		this.hitbox = new Rectangle();
+		this.hitbox.setLayoutX(initialXPos);
+		this.hitbox.setLayoutY(initialYPos);
+		this.hitbox.setWidth(imageHeight * 0.8); // 默认宽度
+		this.hitbox.setHeight(imageHeight * 0.8); // 默认高度
+		this.hitbox.setFill(Color.TRANSPARENT); // 默认透明
+		this.hitbox.setStroke(Color.RED); // 默认边框颜色为红色
+		System.out.println("Initialized hitbox: " + hitbox);
 	}
 
+	// 子类需要实现发射子弹的方法
 	public abstract ActiveActorDestructible fireProjectile();
-	
+
 	@Override
 	public void takeDamage() {
 		health--;
+		System.out.println("FighterPlane took damage. Remaining health: " + health);
 		if (healthAtZero()) {
 			this.destroy();
+			System.out.println("FighterPlane destroyed.");
+		}
+	}
+
+	public void setHitboxSize(double width, double height) {
+		if (hitbox != null) {
+			this.hitbox.setWidth(width);
+			this.hitbox.setHeight(height);
+			System.out.println("Set hitbox size: width=" + width + ", height=" + height);
+		} else {
+			System.out.println("Hitbox is null! Cannot set size.");
+		}
+	}
+
+	public Rectangle getHitbox() {
+		return hitbox;
+	}
+
+	public void updateHitbox() {
+		if (hitbox != null) {
+			hitbox.setLayoutX(getLayoutX() + getTranslateX());
+			hitbox.setLayoutY(getLayoutY() + getTranslateY());
+			System.out.println("Updated hitbox position: x=" + hitbox.getLayoutX() + ", y=" + hitbox.getLayoutY());
+		} else {
+			System.out.println("Hitbox is null when updating position!");
+		}
+	}
+
+	// 可视化 hitbox
+	public void visualizeHitbox(Group root) {
+		if (hitbox != null && !root.getChildren().contains(hitbox)) {
+			root.getChildren().add(hitbox); // 将 hitbox 添加到场景中
+			System.out.println("Hitbox visualized in the scene.");
+		} else {
+			System.out.println("Hitbox is null or already visualized.");
 		}
 	}
 
@@ -28,11 +80,18 @@ public abstract class FighterPlane extends ActiveActorDestructible {
 	}
 
 	private boolean healthAtZero() {
-		return health == 0;
+		return health <= 0;
 	}
 
 	public int getHealth() {
 		return health;
 	}
-		
+
+	// 更新时调用以同步 hitbox 和飞机的位置
+	@Override
+	public void updateActor() {
+		updatePosition(); // 更新飞机的位置
+		updateHitbox();   // 同步更新 hitbox 的位置
+		System.out.println("Updated FighterPlane actor.");
+	}
 }

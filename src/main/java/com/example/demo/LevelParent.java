@@ -3,12 +3,12 @@ package com.example.demo;
 import java.util.*;
 import java.util.stream.Collectors;
 import javafx.animation.*;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.util.Duration;
+import javafx.scene.Node;
 
 public abstract class LevelParent extends Observable {
 
@@ -112,19 +112,15 @@ public abstract class LevelParent extends Observable {
 			background.setFocusTraversable(true);
 			background.setFitHeight(screenHeight);
 			background.setFitWidth(screenWidth);
-			background.setOnKeyPressed(new EventHandler<KeyEvent>() {
-				public void handle(KeyEvent e) {
-					KeyCode kc = e.getCode();
-					if (kc == KeyCode.UP) user.moveUp();
-					if (kc == KeyCode.DOWN) user.moveDown();
-					if (kc == KeyCode.SPACE) fireProjectile();
-				}
+			background.setOnKeyPressed(e -> {
+				KeyCode kc = e.getCode();
+				if (kc == KeyCode.UP) user.moveUp();
+				if (kc == KeyCode.DOWN) user.moveDown();
+				if (kc == KeyCode.SPACE) fireProjectile();
 			});
-			background.setOnKeyReleased(new EventHandler<KeyEvent>() {
-				public void handle(KeyEvent e) {
-					KeyCode kc = e.getCode();
-					if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
-				}
+			background.setOnKeyReleased(e -> {
+				KeyCode kc = e.getCode();
+				if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
 			});
 			root.getChildren().add(background);
 			isBackgroundInitialized = true;
@@ -155,6 +151,13 @@ public abstract class LevelParent extends Observable {
 		enemyUnits.forEach(enemy -> enemy.updateActor());
 		userProjectiles.forEach(projectile -> projectile.updateActor());
 		enemyProjectiles.forEach(projectile -> projectile.updateActor());
+
+		// 更新Boss血条位置
+		for (ActiveActorDestructible enemy : enemyUnits) {
+			if (enemy instanceof Boss) {
+				((Boss) enemy).updateHealthBar(); // 确保Boss血条跟随Boss移动
+			}
+		}
 	}
 
 	private void removeAllDestroyedActors() {
@@ -162,11 +165,18 @@ public abstract class LevelParent extends Observable {
 		removeDestroyedActors(enemyUnits);
 		removeDestroyedActors(userProjectiles);
 		removeDestroyedActors(enemyProjectiles);
+
+		// 移除被销毁的Boss的血条
+		for (ActiveActorDestructible enemy : enemyUnits) {
+			if (enemy instanceof Boss && enemy.isDestroyed()) {
+				root.getChildren().remove(((Boss) enemy).getHealthBar()); // 移除Boss的血条
+			}
+		}
 	}
 
 	private void removeDestroyedActors(List<ActiveActorDestructible> actors) {
 		List<ActiveActorDestructible> destroyedActors = actors.stream()
-				.filter(actor -> actor.isDestroyed())
+				.filter(ActiveActorDestructible::isDestroyed)
 				.collect(Collectors.toList());
 		root.getChildren().removeAll(destroyedActors);
 		actors.removeAll(destroyedActors);
@@ -187,15 +197,23 @@ public abstract class LevelParent extends Observable {
 	private void handleCollisions(List<ActiveActorDestructible> actors1, List<ActiveActorDestructible> actors2) {
 		for (ActiveActorDestructible actor : actors2) {
 			for (ActiveActorDestructible otherActor : actors1) {
-				if (actor.getBoundsInParent().intersects(otherActor.getBoundsInParent())) {
-					actor.takeDamage();
-					otherActor.takeDamage();
-					if (actor.isDestroyed()) actor.destroy();
-					if (otherActor.isDestroyed()) otherActor.destroy();
+				// 检查是否是 ActiveActor 类型，并使用其 hitbox 进行碰撞检测
+				if (actor instanceof ActiveActor && otherActor instanceof ActiveActor) {
+					Node actorHitbox = ((ActiveActor) actor).getHitbox();
+					Node otherActorHitbox = ((ActiveActor) otherActor).getHitbox();
+					if (actorHitbox.getBoundsInParent().intersects(otherActorHitbox.getBoundsInParent())) {
+						// 碰撞后处理伤害逻辑
+						actor.takeDamage();
+						otherActor.takeDamage();
+						// 如果被销毁，则调用 destroy 方法
+						if (actor.isDestroyed()) actor.destroy();
+						if (otherActor.isDestroyed()) otherActor.destroy();
+					}
 				}
 			}
 		}
 	}
+
 
 	private void handleEnemyPenetration() {
 		for (ActiveActorDestructible enemy : enemyUnits) {
@@ -255,9 +273,11 @@ public abstract class LevelParent extends Observable {
 	protected void addEnemyUnit(ActiveActorDestructible enemy) {
 		enemyUnits.add(enemy);
 		root.getChildren().add(enemy);
+
 		if (enemy instanceof Boss) {
-			ShieldImage shield = ((Boss) enemy).getShieldImage();
-			root.getChildren().add(shield);
+			Boss boss = (Boss) enemy;
+			root.getChildren().add(boss.getShieldImage());  // 添加护盾
+			root.getChildren().add(boss.getHealthBar());    // 添加血条
 		}
 	}
 

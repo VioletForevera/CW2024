@@ -8,10 +8,13 @@ public class EnemyPlane extends FighterPlane {
 	private static final double PROJECTILE_X_POSITION_OFFSET = -100.0;
 	private static final double PROJECTILE_Y_POSITION_OFFSET = 50.0;
 	private static final int INITIAL_HEALTH = 1;
-	private static final double FIRE_RATE = .000000000001;
+	private static final double FIRE_RATE = 0.01;
 
 	public EnemyPlane(double initialXPos, double initialYPos) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, initialXPos, initialYPos, INITIAL_HEALTH);
+
+		// 设置较小的 hitbox 尺寸
+		setHitboxSize(IMAGE_HEIGHT * 0.7, IMAGE_HEIGHT * 0.5); // 宽度为图片高度的 50%，高度为图片高度的 30%
 	}
 
 	@Override
@@ -32,6 +35,6 @@ public class EnemyPlane extends FighterPlane {
 	@Override
 	public void updateActor() {
 		updatePosition();
+		updateHitbox(); // 更新 hitbox 的位置
 	}
-
 }
