@@ -15,7 +15,7 @@ public class Boss extends FighterPlane {
 	private static final double INITIAL_Y_POSITION = 400;
 	private static final double PROJECTILE_Y_POSITION_OFFSET = 75.0;
 	private static final double BOSS_FIRE_RATE = 0.00004;
-	private static final double BOSS_SHIELD_PROBABILITY = 0.002;
+	private static final double BOSS_SHIELD_PROBABILITY = 0.2;
 	private static final int IMAGE_HEIGHT = 300;
 	private static final int VERTICAL_VELOCITY = 8;
 	private static final int HEALTH = 100;
@@ -35,9 +35,13 @@ public class Boss extends FighterPlane {
 	private final Rectangle healthBar; // 血条矩形
 	private final double maxHealth; // 用于计算血条宽度
 
+	// 新增 hitbox 水平和垂直偏移变量
+	private double hitboxOffsetX;
+	private double hitboxOffsetY;
+
 	// 无参数构造函数
 	public Boss() {
-		this(null); // 调用另一个构造函数，并传入 null
+		this(new Group()); // 调用带参数的构造函数，创建一个默认的 Group
 	}
 
 	// 构造函数，接受 Group 作为参数
@@ -66,9 +70,19 @@ public class Boss extends FighterPlane {
 		}
 
 		// 设置 hitbox 的大小
-		setHitboxSize(IMAGE_HEIGHT * 9999, IMAGE_HEIGHT * 1);
+		setHitboxSize(IMAGE_HEIGHT * 0.8, IMAGE_HEIGHT * 0.3);
+
+		// 初始化偏移值
+		this.hitboxOffsetX = 50;
+		this.hitboxOffsetY = 100;
 
 		initializeMovePattern();
+	}
+
+	// 设置 hitbox 偏移的方法
+	public void setHitboxOffset(double offsetX, double offsetY) {
+		this.hitboxOffsetX = offsetX;
+		this.hitboxOffsetY = offsetY;
 	}
 
 	@Override
@@ -90,6 +104,15 @@ public class Boss extends FighterPlane {
 
 		// 更新 hitbox 的位置
 		updateHitbox();
+	}
+
+	@Override
+	public void updateHitbox() { // 修改为 public
+		if (getHitbox() != null) {
+			getHitbox().setLayoutX(getLayoutX() + getTranslateX() + hitboxOffsetX);
+			getHitbox().setLayoutY(getLayoutY() + getTranslateY() + hitboxOffsetY);
+			System.out.println("Updated Boss hitbox: x=" + getHitbox().getLayoutX() + ", y=" + getHitbox().getLayoutY());
+		}
 	}
 
 	@Override

@@ -11,23 +11,33 @@ public class UserPlane extends FighterPlane {
 	private static final double INITIAL_Y_POSITION = 300.0;
 	private static final int IMAGE_HEIGHT = 150;
 	private static final int VERTICAL_VELOCITY = 8;
-	private static final int PROJECTILE_X_POSITION = 110;
+	private static final int PROJECTILE_X_POSITION_OFFSET = 110;
 	private static final int PROJECTILE_Y_POSITION_OFFSET = 20;
+
 	private int velocityMultiplier;
 	private int numberOfKills;
 	private boolean isShielded; // 是否激活护盾
 	private final ShieldImage shieldImage; // 护盾图像
+	private final Group root; // 场景根节点
 
 	// 构造函数：接受初始生命值和根节点
 	public UserPlane(int initialHealth, Group root) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, initialHealth);
 		velocityMultiplier = 0;
 		isShielded = false;
+		this.root = root;
 
 		// 初始化护盾图像，并添加到场景
 		shieldImage = new ShieldImage(INITIAL_X_POSITION, INITIAL_Y_POSITION);
 		if (root != null) {
 			root.getChildren().add(shieldImage); // 将护盾图像添加到场景中
+		}
+
+		// 初始化 hitbox 并可视化
+		setHitboxSize(IMAGE_HEIGHT * 0.8, IMAGE_HEIGHT * 0.5); // 设置 hitbox 大小
+		setHitboxOffset(0, 20); // 设置 hitbox 偏移量（向下移动 20 像素）
+		if (root != null) {
+			visualizeHitbox(root); // 可视化 hitbox
 		}
 	}
 
@@ -46,9 +56,13 @@ public class UserPlane extends FighterPlane {
 				this.setTranslateY(initialTranslateY);
 			}
 		}
+
 		// 更新护盾位置，使其与玩家位置同步
 		shieldImage.setLayoutX(getLayoutX() + getTranslateX());
 		shieldImage.setLayoutY(getLayoutY() + getTranslateY());
+
+		// 更新 hitbox 位置
+		updateHitbox();
 	}
 
 	@Override
@@ -58,7 +72,14 @@ public class UserPlane extends FighterPlane {
 
 	@Override
 	public ActiveActorDestructible fireProjectile() {
-		return new UserProjectile(PROJECTILE_X_POSITION, getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET));
+		double projectileX = getLayoutX() + PROJECTILE_X_POSITION_OFFSET;
+		double projectileY = getProjectileYPosition(PROJECTILE_Y_POSITION_OFFSET);
+
+		UserProjectile projectile = new UserProjectile(projectileX, projectileY, root); // 传入 root 以显示 hitbox
+		if (root != null) {
+			projectile.visualizeHitbox(root); // 可视化子弹的 hitbox
+		}
+		return projectile;
 	}
 
 	private boolean isMoving() {

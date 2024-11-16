@@ -8,6 +8,8 @@ public abstract class FighterPlane extends ActiveActorDestructible {
 
 	private int health;
 	private Rectangle hitbox;
+	private double hitboxOffsetX = 0; // 水平偏移量
+	private double hitboxOffsetY = 0; // 垂直偏移量
 
 	public FighterPlane(String imageName, int imageHeight, double initialXPos, double initialYPos, int health) {
 		super(imageName, imageHeight, initialXPos, initialYPos);
@@ -15,12 +17,10 @@ public abstract class FighterPlane extends ActiveActorDestructible {
 
 		// 初始化 hitbox
 		this.hitbox = new Rectangle();
-		this.hitbox.setLayoutX(initialXPos);
-		this.hitbox.setLayoutY(initialYPos);
 		this.hitbox.setWidth(imageHeight * 0.8); // 默认宽度
 		this.hitbox.setHeight(imageHeight * 0.8); // 默认高度
 		this.hitbox.setFill(Color.TRANSPARENT); // 默认透明
-		this.hitbox.setStroke(Color.RED); // 默认边框颜色为红色
+		this.hitbox.setStroke(Color.RED); // 用于调试的红色边框
 		System.out.println("Initialized hitbox: " + hitbox);
 	}
 
@@ -47,14 +47,20 @@ public abstract class FighterPlane extends ActiveActorDestructible {
 		}
 	}
 
+	public void setHitboxOffset(double offsetX, double offsetY) {
+		this.hitboxOffsetX = offsetX;
+		this.hitboxOffsetY = offsetY;
+		System.out.println("Set hitbox offset: offsetX=" + offsetX + ", offsetY=" + offsetY);
+	}
+
 	public Rectangle getHitbox() {
 		return hitbox;
 	}
 
 	public void updateHitbox() {
 		if (hitbox != null) {
-			hitbox.setLayoutX(getLayoutX() + getTranslateX());
-			hitbox.setLayoutY(getLayoutY() + getTranslateY());
+			hitbox.setLayoutX(getLayoutX() + getTranslateX() + hitboxOffsetX);
+			hitbox.setLayoutY(getLayoutY() + getTranslateY() + hitboxOffsetY);
 			System.out.println("Updated hitbox position: x=" + hitbox.getLayoutX() + ", y=" + hitbox.getLayoutY());
 		} else {
 			System.out.println("Hitbox is null when updating position!");

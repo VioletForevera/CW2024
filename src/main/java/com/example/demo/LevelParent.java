@@ -7,8 +7,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
-import javafx.util.Duration;
 import javafx.scene.Node;
+import javafx.util.Duration;
 
 public abstract class LevelParent extends Observable {
 
@@ -39,7 +39,7 @@ public abstract class LevelParent extends Observable {
 		this.root = new Group();
 		this.scene = new Scene(root, screenWidth, screenHeight);
 		this.timeline = new Timeline();
-		this.user = new UserPlane(playerInitialHealth);
+		this.user = new UserPlane(playerInitialHealth, root);
 		this.friendlyUnits = new ArrayList<>();
 		this.enemyUnits = new ArrayList<>();
 		this.userProjectiles = new ArrayList<>();
@@ -131,19 +131,26 @@ public abstract class LevelParent extends Observable {
 
 	private void fireProjectile() {
 		ActiveActorDestructible projectile = user.fireProjectile();
-		root.getChildren().add(projectile);
-		userProjectiles.add(projectile);
+		if (projectile != null) {
+			root.getChildren().add(projectile);
+			if (projectile instanceof UserProjectile) {
+				((UserProjectile) projectile).visualizeHitbox(root);
+			}
+			userProjectiles.add(projectile);
+		}
 	}
 
 	private void generateEnemyFire() {
-		enemyUnits.forEach(enemy -> spawnEnemyProjectile(((FighterPlane) enemy).fireProjectile()));
-	}
-
-	private void spawnEnemyProjectile(ActiveActorDestructible projectile) {
-		if (projectile != null) {
-			root.getChildren().add(projectile);
-			enemyProjectiles.add(projectile);
-		}
+		enemyUnits.forEach(enemy -> {
+			ActiveActorDestructible projectile = ((FighterPlane) enemy).fireProjectile();
+			if (projectile != null) {
+				root.getChildren().add(projectile);
+				if (projectile instanceof EnemyProjectile) {
+					((EnemyProjectile) projectile).visualizeHitbox(root);
+				}
+				enemyProjectiles.add(projectile);
+			}
+		});
 	}
 
 	private void updateActors() {
@@ -152,10 +159,9 @@ public abstract class LevelParent extends Observable {
 		userProjectiles.forEach(projectile -> projectile.updateActor());
 		enemyProjectiles.forEach(projectile -> projectile.updateActor());
 
-		// 更新Boss血条位置
 		for (ActiveActorDestructible enemy : enemyUnits) {
 			if (enemy instanceof Boss) {
-				((Boss) enemy).updateHealthBar(); // 确保Boss血条跟随Boss移动
+				((Boss) enemy).updateHealthBar();
 			}
 		}
 	}
@@ -165,13 +171,6 @@ public abstract class LevelParent extends Observable {
 		removeDestroyedActors(enemyUnits);
 		removeDestroyedActors(userProjectiles);
 		removeDestroyedActors(enemyProjectiles);
-
-		// 移除被销毁的Boss的血条
-		for (ActiveActorDestructible enemy : enemyUnits) {
-			if (enemy instanceof Boss && enemy.isDestroyed()) {
-				root.getChildren().remove(((Boss) enemy).getHealthBar()); // 移除Boss的血条
-			}
-		}
 	}
 
 	private void removeDestroyedActors(List<ActiveActorDestructible> actors) {
@@ -197,15 +196,12 @@ public abstract class LevelParent extends Observable {
 	private void handleCollisions(List<ActiveActorDestructible> actors1, List<ActiveActorDestructible> actors2) {
 		for (ActiveActorDestructible actor : actors2) {
 			for (ActiveActorDestructible otherActor : actors1) {
-				// 检查是否是 ActiveActor 类型，并使用其 hitbox 进行碰撞检测
 				if (actor instanceof ActiveActor && otherActor instanceof ActiveActor) {
 					Node actorHitbox = ((ActiveActor) actor).getHitbox();
 					Node otherActorHitbox = ((ActiveActor) otherActor).getHitbox();
 					if (actorHitbox.getBoundsInParent().intersects(otherActorHitbox.getBoundsInParent())) {
-						// 碰撞后处理伤害逻辑
 						actor.takeDamage();
 						otherActor.takeDamage();
-						// 如果被销毁，则调用 destroy 方法
 						if (actor.isDestroyed()) actor.destroy();
 						if (otherActor.isDestroyed()) otherActor.destroy();
 					}
@@ -213,7 +209,6 @@ public abstract class LevelParent extends Observable {
 			}
 		}
 	}
-
 
 	private void handleEnemyPenetration() {
 		for (ActiveActorDestructible enemy : enemyUnits) {
@@ -235,7 +230,6 @@ public abstract class LevelParent extends Observable {
 
 		for (ActiveActorDestructible enemy : destroyedEnemies) {
 			user.incrementKillCount();
-			System.out.println("Destroyed an enemy, current kill count: " + user.getNumberOfKills());
 		}
 
 		enemyUnits.removeAll(destroyedEnemies);
@@ -276,8 +270,12 @@ public abstract class LevelParent extends Observable {
 
 		if (enemy instanceof Boss) {
 			Boss boss = (Boss) enemy;
-			root.getChildren().add(boss.getShieldImage());  // 添加护盾
-			root.getChildren().add(boss.getHealthBar());    // 添加血条
+			root.getChildren().add(boss.getShieldImage());
+			root.getChildren().add(boss.getHealthBar());
+		}
+
+		if (enemy instanceof ActiveActor) {
+			((ActiveActor) enemy).visualizeHitbox(root);
 		}
 	}
 
