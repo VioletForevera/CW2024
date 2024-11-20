@@ -1,4 +1,6 @@
-package com.example.demo;
+package Levels;
+
+import Entities.Boss;
 
 public class LevelTwo extends LevelParent {
 

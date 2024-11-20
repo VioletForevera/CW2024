@@ -1,4 +1,4 @@
-package com.example.demo;
+package Core;
 
 import javafx.scene.Group;
 import javafx.scene.paint.Color;

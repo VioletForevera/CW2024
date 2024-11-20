@@ -1,7 +1,15 @@
-package com.example.demo;
+package Levels;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import Core.ActiveActor;
+import Core.ActiveActorDestructible;
+import Core.FighterPlane;
+import Entities.Boss;
+import Entities.EnemyProjectile;
+import Entities.UserPlane;
+import Entities.UserProjectile;
 import javafx.animation.*;
 import javafx.scene.Group;
 import javafx.scene.Scene;

@@ -1,4 +1,6 @@
-package com.example.demo;
+package Entities;
+
+import Core.Projectile;
 
 public class EnemyProjectile extends Projectile {
 	

@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package Ui;
 
 import javax.swing.*;
 import java.awt.*;

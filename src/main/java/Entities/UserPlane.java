@@ -1,5 +1,8 @@
-package com.example.demo;
+package Entities;
 
+import Core.ActiveActorDestructible;
+import Core.FighterPlane;
+import Ui.ShieldImage;
 import javafx.scene.Group;
 
 public class UserPlane extends FighterPlane {

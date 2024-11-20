@@ -1,5 +1,6 @@
-package com.example.demo;
+package Entities;
 
+import Core.Projectile;
 import javafx.scene.Group;
 
 public class UserProjectile extends Projectile {

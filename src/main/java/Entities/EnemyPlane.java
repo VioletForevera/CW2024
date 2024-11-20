@@ -1,5 +1,7 @@
-package com.example.demo;
+package Entities;
 
+import Core.ActiveActorDestructible;
+import Core.FighterPlane;
 import javafx.scene.Group;
 
 public class EnemyPlane extends FighterPlane {

@@ -1,5 +1,6 @@
-package com.example.demo.controller;
+package Ui;
 
+import com.example.demo.controller.Main;
 import sounds.MusicPlayer;
 
 import javax.swing.*;
