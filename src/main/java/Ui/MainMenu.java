@@ -10,39 +10,38 @@ import java.awt.*;
 public class MainMenu extends JFrame {
 
     private MusicPlayer musicPlayer;
-    private int volumeLevel = 50; // Initial volume level
+    private int volumeLevel = 50; // 初始音量
 
     public MainMenu() {
-        // Create an instance of the music player and play background music
-        musicPlayer = new MusicPlayer("src/main/resources/com/example/demo/images/sound.wav");
+        // 使用类路径加载背景音乐
+        musicPlayer = new MusicPlayer("/com/example/demo/images/sound.wav");
         musicPlayer.play();
-        musicPlayer.setVolume(volumeLevel / 100.0f); // Set volume based on the slider value
+        musicPlayer.setVolume(volumeLevel / 100.0f);
 
-        // Set window title and basic configurations
+        // 设置窗口标题和基本配置
         setTitle("Game Menu");
-        setSize(950, 600); // Increase window size to display more background
+        setSize(950, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Set background image
+        // 设置背景图片
         setContentPane(new BackgroundPanel());
 
-        // Create buttons with styling
+        // 创建按钮
         JButton startButton = createStyledButton("Start Game");
         JButton settingsButton = createStyledButton("Settings");
         JButton exitButton = createStyledButton("Exit");
 
-        // Set button action listeners
+        // 添加按钮事件监听器
         startButton.addActionListener(e -> startGame());
         settingsButton.addActionListener(e -> openSettings());
         exitButton.addActionListener(e -> exitGame());
 
-        // Set button panel layout
+        // 设置按钮布局
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 
-        // Add spacing for aesthetic layout
         buttonPanel.add(Box.createVerticalGlue());
         buttonPanel.add(startButton);
         buttonPanel.add(Box.createVerticalStrut(20));
@@ -68,7 +67,7 @@ public class MainMenu extends JFrame {
     private void startGame() {
         System.out.println("Game Started!");
         this.dispose();
-        musicPlayer.stop(); // Stop background music when starting the game
+        musicPlayer.stop(); // 开始游戏时停止背景音乐
 
         new Thread(() -> {
             try {
@@ -87,7 +86,7 @@ public class MainMenu extends JFrame {
         JPanel dialogPanel = new JPanel();
         dialogPanel.setBackground(new Color(50, 50, 50));
         dialogPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
-        dialogPanel.setLayout(new GridLayout(2, 1, 10, 10)); // Adjust layout
+        dialogPanel.setLayout(new GridLayout(2, 1, 10, 10));
 
         JLabel volumeLabel = new JLabel("Volume");
         volumeLabel.setForeground(Color.WHITE);
