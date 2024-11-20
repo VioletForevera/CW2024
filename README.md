@@ -1,32 +1,32 @@
-#Project Structure Refactoring#
+# Project Structure Refactoring#
 The project has been reorganized into multiple packages to improve readability and maintainability. Each package has a specific purpose:
 
-**Core
+** Core
 Contains core functionality and base classes, such as ActiveActor, which serves as the parent class for all active entities in the game.
 
-**Entities
+** Entities
 Contains specific game entities, including:
 
 Boss: The boss character in the game, which includes a shield and a health bar.
 EnemyPlane and UserPlane: Represent enemy and player-controlled planes.
-**Levels
+** Levels
 Manages different game levels:
 
 LevelOne: The first level of the game, where the player battles standard enemies.
 LevelTwo: Introduces the boss fight along with additional mechanics.
-**Ui
+** Ui
 Manages user interface components, such as:
 
 ShieldImage: Displays the shield effect for the boss or player.
 HeartDisplay: Shows the player's remaining health visually.
-#Issues Encountered
-#Path Problems After Refactoring
+# Issues Encountered
+# Path Problems After Refactoring
 Problem: During the package reorganization, the paths to image assets (e.g., shield.png, bossplane.png) were temporarily broken.
 Solution: Adjusted all resource paths to use a consistent structure within the resources directory.
-#Temporary Shield Visibility Issue
+# Temporary Shield Visibility Issue
 Problem: After refactoring, the boss's shield initially failed to display.
 Solution: Ensured ShieldImage was correctly added to the scene's root node and its position updated with the boss's movements.
-#Future Plans for Refactoring
+# Future Plans for Refactoring
 Enhance Utils Package
 Create utility classes for common tasks:
 
