@@ -43,7 +43,7 @@ Update the positions and sizes of hitboxes dynamically.
 Visualize hitboxes for debugging purposes.
 Key Logic:
 - **Code snippet:**
-     ```java
+```java
 public class HitboxManager {
     private final List<ActiveActor> actors = new ArrayList<>();
 
@@ -93,7 +93,7 @@ A kill target requirement for progression.
 Dynamic enemy spawning logic.
 Key Logic:
 - **Code snippet:**
-     ```java
+```java
 public class LevelThree extends LevelParent {
     private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/background3.png";
     private static final String NEXT_LEVEL = "Levels.LevelTwo";
