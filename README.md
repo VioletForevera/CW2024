@@ -9,7 +9,7 @@ Detect collisions between two lists of destructible actors.
 Handle the effects of collisions, such as reducing health or destroying objects.
 Key Logic:
 - **Code snippet:**
-     ```java
+```java
 public class CollisionManager {
     public static void handleCollisions(List<ActiveActorDestructible> actors1, List<ActiveActorDestructible> actors2) {
         for (ActiveActorDestructible actor : actors1) {
