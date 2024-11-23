@@ -32,7 +32,11 @@ public abstract class ActiveActor extends ImageView {
 		hitbox.setY(getLayoutY() + getTranslateY());
 	}
 
-	// 设置 hitbox 的大小
+	// 公共方法用于更新 hitbox，供外部类调用
+	public void updateActorHitbox() {
+		updateHitbox(); // 调用 protected 方法
+	}
+
 	// 设置 hitbox 的大小
 	public void setHitboxSize(double width, double height) {
 		if (hitbox != null) {
@@ -42,7 +46,6 @@ public abstract class ActiveActor extends ImageView {
 			System.out.println("Set hitbox size: width=" + width + ", height=" + height);
 		}
 	}
-
 
 	// 获取当前的 hitbox
 	public Rectangle getHitbox() {
