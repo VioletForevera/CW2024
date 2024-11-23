@@ -15,8 +15,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
-import javafx.scene.Node;
 import javafx.util.Duration;
+import manager.CollisionManager;
 
 public abstract class LevelParent extends Observable {
 
@@ -190,32 +190,15 @@ public abstract class LevelParent extends Observable {
 	}
 
 	private void handlePlaneCollisions() {
-		handleCollisions(friendlyUnits, enemyUnits);
+		CollisionManager.handleCollisions(friendlyUnits, enemyUnits);
 	}
 
 	private void handleUserProjectileCollisions() {
-		handleCollisions(userProjectiles, enemyUnits);
+		CollisionManager.handleCollisions(userProjectiles, enemyUnits);
 	}
 
 	private void handleEnemyProjectileCollisions() {
-		handleCollisions(enemyProjectiles, friendlyUnits);
-	}
-
-	private void handleCollisions(List<ActiveActorDestructible> actors1, List<ActiveActorDestructible> actors2) {
-		for (ActiveActorDestructible actor : actors2) {
-			for (ActiveActorDestructible otherActor : actors1) {
-				if (actor instanceof ActiveActor && otherActor instanceof ActiveActor) {
-					Node actorHitbox = ((ActiveActor) actor).getHitbox();
-					Node otherActorHitbox = ((ActiveActor) otherActor).getHitbox();
-					if (actorHitbox.getBoundsInParent().intersects(otherActorHitbox.getBoundsInParent())) {
-						actor.takeDamage();
-						otherActor.takeDamage();
-						if (actor.isDestroyed()) actor.destroy();
-						if (otherActor.isDestroyed()) otherActor.destroy();
-					}
-				}
-			}
-		}
+		CollisionManager.handleCollisions(enemyProjectiles, friendlyUnits);
 	}
 
 	private void handleEnemyPenetration() {
