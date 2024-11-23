@@ -133,10 +133,24 @@ public class LevelThree extends LevelParent {
 }
 ```
 Integration Workflow
+
+
 Collision Detection with CollisionManager:
+
+
 LevelThree uses the CollisionManager to resolve collisions between the player and enemies dynamically.
+
+
 Hitbox Management with HitboxManager:
+
+
 The hitboxes for all actors in LevelThree are registered and updated through HitboxManager.
+
+
 Hitbox positions and sizes are dynamically updated to align with actor movement.
+
+
 Enhanced Gameplay Experience in LevelThree:
+
+
 The addition of a custom background and unique spawning logic offers a challenging gameplay environment.
