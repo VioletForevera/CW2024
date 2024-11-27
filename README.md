@@ -1,47 +1,73 @@
-# Project Structure Refactoring
-The project has been reorganized into multiple packages to improve readability and maintainability. Each package has a specific purpose:
+# Updates Summary
 
-** Core
-Contains core functionality and base classes, such as ActiveActor, which serves as the parent class for all active entities in the game.
+- **Added**: **Win Menu** and **Game Over Menu**.
+- **Implemented**: **Free Movement** for the player's plane (both vertically and horizontally).
+- **Documented**: Known issues.
 
-** Entities
-Contains specific game entities, including:
 
-Boss: The boss character in the game, which includes a shield and a health bar.
-EnemyPlane and UserPlane: Represent enemy and player-controlled planes.
-** Levels
-Manages different game levels:
+## Updates
 
-LevelOne: The first level of the game, where the player battles standard enemies.
-LevelTwo: Introduces the boss fight along with additional mechanics.
-** Ui
-Manages user interface components, such as:
+### 1. **Win and Game Over Menus**
 
-ShieldImage: Displays the shield effect for the boss or player.
-HeartDisplay: Shows the player's remaining health visually.
-# Issues Encountered
-# Path Problems After Refactoring
-Problem: During the package reorganization, the paths to image assets (e.g., shield.png, bossplane.png) were temporarily broken.
-Solution: Adjusted all resource paths to use a consistent structure within the resources directory.
-# Temporary Shield Visibility Issue
-Problem: After refactoring, the boss's shield initially failed to display.
-Solution: Ensured ShieldImage was correctly added to the scene's root node and its position updated with the boss's movements.
-# Future Plans for Refactoring
-Enhance Utils Package
-Create utility classes for common tasks:
+#### Description
+- Introduced **Win Menu** and **Game Over Menu**, displayed after the player achieves victory or suffers defeat.
+- Menus include the following functionalities:
+  - **Exit Game**: Exits the application.
+  - **Return to Menu**: Hides the current window and returns to the main menu to restart the game.
 
-ResourceManager: Centralized resource loading for images and sounds.
-CollisionDetector: Simplified collision detection between entities.
-Extract Hitbox Management
-Move hitbox-related logic from ActiveActor to a dedicated HitboxManager class for cleaner code and easier debugging.
+#### Implementation Details
+- **EDIT Classes**:
+  - `Ui.WinImage`: Displays the win menu with interactive buttons.
+  - `Ui.GameOverImage`: Displays the game over menu with interactive buttons.
+- **Logic**:
+  - Each menu includes a background image and two buttons.
+  - Implemented using `JavaFX` components such as `Button` and `ImageView`.
+  - Button interactions are handled via the `setOnAction` method.
+- **Styling**:
+  - Buttons are styled using CSS to enhance aesthetics and interactivity.
 
-Optimize LevelParent
-Refactor to abstract common level logic, allowing child classes to focus only on unique features.
+#### Core Code
+- **Return to Menu Logic**:
+  ```java
+  returnButton.setOnAction(event -> {
+      System.out.println("Returning to main menu...");
+      this.getScene().getWindow().hide();
+      javax.swing.SwingUtilities.invokeLater(() -> {
+          MainMenu mainMenu = new MainMenu();
+          mainMenu.setVisible(true);
+      });
+  });
+### 2. **Free Movement for the Plane**
 
-Introduce Design Patterns
-Apply patterns such as:
+#### Description
+- Enabled free movement for the player's plane within the screen (both vertically and horizontally).
+- Improved projectile logic to ensure bullets' positions align with the plane's current location.
 
-Factory Pattern for enemy creation.
-Observer Pattern for updating UI components based on game state changes.
-Summary
-This project structure and refactoring plan aim to enhance the codebase's maintainability and scalability, ensuring a more robust and modular design.
+#### Implementation Details
+- **Modified Classes**:
+  - `Entities.UserPlane`: Added logic for horizontal movement with `moveLeft()` and `moveRight()` methods.
+  - `Entities.UserProjectile`: Synced bullet initialization with the plane's position.
+- **Keyboard Input Handling**:
+  Added key event bindings in the `LevelParent` class's `initializeBackground()` method:
+
+  ```java
+  background.setOnKeyPressed(e -> {
+      KeyCode kc = e.getCode();
+      if (kc == KeyCode.UP) user.moveUp();
+      if (kc == KeyCode.DOWN) user.moveDown();
+      if (kc == KeyCode.LEFT) user.moveLeft();
+      if (kc == KeyCode.RIGHT) user.moveRight();
+      if (kc == KeyCode.SPACE) fireProjectile();
+  });
+  background.setOnKeyReleased(e -> {
+      KeyCode kc = e.getCode();
+      if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stopVertical();
+      if (kc == KeyCode.LEFT || kc == KeyCode.RIGHT) user.stopHorizontal();
+  });
+Known Issues
+1. Error on Clicking Start Game After Returning to Menu
+Issue: After navigating back to the main menu from the Win or Game Over screen, clicking "Start Game" results in the following error:
+text
+复制代码
+java.lang.IllegalStateException: Application launch must not be called more than once
+Cause: The JavaFX Application.launch() method can only be called once. Restarting the game by invoking Main.main() triggers this error.
