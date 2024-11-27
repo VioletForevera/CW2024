@@ -68,6 +68,6 @@ Known Issues
 1. Error on Clicking Start Game After Returning to Menu
 Issue: After navigating back to the main menu from the Win or Game Over screen, clicking "Start Game" results in the following error:
 text
-复制代码
+
 java.lang.IllegalStateException: Application launch must not be called more than once
 Cause: The JavaFX Application.launch() method can only be called once. Restarting the game by invoking Main.main() triggers this error.
