@@ -15,13 +15,13 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
+import javafx.scene.Node;
 import javafx.util.Duration;
-import manager.CollisionManager;
 
 public abstract class LevelParent extends Observable {
 
 	private static final double SCREEN_HEIGHT_ADJUSTMENT = 150;
-	private static final int MILLISECOND_DELAY = 50;
+	private static final int MILLISECOND_DELAY = 40;
 	private final double screenHeight;
 	private final double screenWidth;
 	private final double enemyMaximumYPosition;
@@ -120,22 +120,31 @@ public abstract class LevelParent extends Observable {
 			background.setFocusTraversable(true);
 			background.setFitHeight(screenHeight);
 			background.setFitWidth(screenWidth);
+
+			// 键盘按下事件
 			background.setOnKeyPressed(e -> {
 				KeyCode kc = e.getCode();
 				if (kc == KeyCode.UP) user.moveUp();
 				if (kc == KeyCode.DOWN) user.moveDown();
-				if (kc == KeyCode.SPACE) fireProjectile();
+				if (kc == KeyCode.LEFT) user.moveLeft(); // 新增：向左移动
+				if (kc == KeyCode.RIGHT) user.moveRight(); // 新增：向右移动
+				if (kc == KeyCode.SPACE) fireProjectile(); // 发射子弹
 			});
+
+			// 键盘释放事件
 			background.setOnKeyReleased(e -> {
 				KeyCode kc = e.getCode();
-				if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
+				if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stopVertical();
+				if (kc == KeyCode.LEFT || kc == KeyCode.RIGHT) user.stopHorizontal(); // 新增：停止水平移动
 			});
+
 			root.getChildren().add(background);
 			isBackgroundInitialized = true;
 		} else {
 			System.out.println("Background already initialized.");
 		}
 	}
+
 
 	private void fireProjectile() {
 		ActiveActorDestructible projectile = user.fireProjectile();
@@ -190,15 +199,32 @@ public abstract class LevelParent extends Observable {
 	}
 
 	private void handlePlaneCollisions() {
-		CollisionManager.handleCollisions(friendlyUnits, enemyUnits);
+		handleCollisions(friendlyUnits, enemyUnits);
 	}
 
 	private void handleUserProjectileCollisions() {
-		CollisionManager.handleCollisions(userProjectiles, enemyUnits);
+		handleCollisions(userProjectiles, enemyUnits);
 	}
 
 	private void handleEnemyProjectileCollisions() {
-		CollisionManager.handleCollisions(enemyProjectiles, friendlyUnits);
+		handleCollisions(enemyProjectiles, friendlyUnits);
+	}
+
+	private void handleCollisions(List<ActiveActorDestructible> actors1, List<ActiveActorDestructible> actors2) {
+		for (ActiveActorDestructible actor : actors2) {
+			for (ActiveActorDestructible otherActor : actors1) {
+				if (actor instanceof ActiveActor && otherActor instanceof ActiveActor) {
+					Node actorHitbox = ((ActiveActor) actor).getHitbox();
+					Node otherActorHitbox = ((ActiveActor) otherActor).getHitbox();
+					if (actorHitbox.getBoundsInParent().intersects(otherActorHitbox.getBoundsInParent())) {
+						actor.takeDamage();
+						otherActor.takeDamage();
+						if (actor.isDestroyed()) actor.destroy();
+						if (otherActor.isDestroyed()) otherActor.destroy();
+					}
+				}
+			}
+		}
 	}
 
 	private void handleEnemyPenetration() {
