@@ -58,10 +58,7 @@ public class EnemyPlane extends FighterPlane {
 			getHitbox().setLayoutX(getLayoutX() + getTranslateX() + horizontalOffset);
 			getHitbox().setLayoutY(getLayoutY() + getTranslateY() + verticalOffset);
 
-			System.out.println("Updated EnemyPlane hitbox position: x=" + getHitbox().getLayoutX()
-					+ ", y=" + getHitbox().getLayoutY());
-		} else {
-			System.out.println("Hitbox is null when updating position!");
+			;
 		}
 	}
 
@@ -77,7 +74,6 @@ public class EnemyPlane extends FighterPlane {
 	public void visualizeHitbox(Group root) {
 		if (getHitbox() != null && !root.getChildren().contains(getHitbox())) {
 			root.getChildren().add(getHitbox());
-			System.out.println("Visualizing EnemyPlane hitbox: " + getHitbox());
 		}
 	}
 }

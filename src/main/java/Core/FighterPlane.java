@@ -21,7 +21,6 @@ public abstract class FighterPlane extends ActiveActorDestructible {
 		this.hitbox.setHeight(imageHeight * 0.8); // 默认高度
 		this.hitbox.setFill(Color.TRANSPARENT); // 默认透明
 		this.hitbox.setStroke(Color.RED); // 用于调试的红色边框
-		System.out.println("Initialized hitbox: " + hitbox);
 	}
 
 	// 子类需要实现发射子弹的方法
@@ -41,9 +40,7 @@ public abstract class FighterPlane extends ActiveActorDestructible {
 		if (hitbox != null) {
 			this.hitbox.setWidth(width);
 			this.hitbox.setHeight(height);
-			System.out.println("Set hitbox size: width=" + width + ", height=" + height);
-		} else {
-			System.out.println("Hitbox is null! Cannot set size.");
+
 		}
 	}
 
@@ -61,9 +58,7 @@ public abstract class FighterPlane extends ActiveActorDestructible {
 		if (hitbox != null) {
 			hitbox.setLayoutX(getLayoutX() + getTranslateX() + hitboxOffsetX);
 			hitbox.setLayoutY(getLayoutY() + getTranslateY() + hitboxOffsetY);
-			System.out.println("Updated hitbox position: x=" + hitbox.getLayoutX() + ", y=" + hitbox.getLayoutY());
-		} else {
-			System.out.println("Hitbox is null when updating position!");
+			;
 		}
 	}
 

@@ -43,7 +43,6 @@ public abstract class ActiveActor extends ImageView {
 			this.hitbox.setWidth(width);
 			this.hitbox.setHeight(height);
 			updateHitbox(); // 确保每次调整尺寸后立即同步位置
-			System.out.println("Set hitbox size: width=" + width + ", height=" + height);
 		}
 	}
 

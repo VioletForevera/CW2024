@@ -10,6 +10,7 @@ import Entities.Boss;
 import Entities.EnemyProjectile;
 import Entities.UserPlane;
 import Entities.UserProjectile;
+import Entities.Heart;
 import javafx.animation.*;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -36,6 +37,7 @@ public abstract class LevelParent extends Observable {
 	private final List<ActiveActorDestructible> enemyUnits;
 	private final List<ActiveActorDestructible> userProjectiles;
 	private final List<ActiveActorDestructible> enemyProjectiles;
+	private final List<Heart> hearts; // 存储心形道具
 
 	private int currentNumberOfEnemies;
 	private LevelView levelView;
@@ -52,6 +54,7 @@ public abstract class LevelParent extends Observable {
 		this.enemyUnits = new ArrayList<>();
 		this.userProjectiles = new ArrayList<>();
 		this.enemyProjectiles = new ArrayList<>();
+		this.hearts = new ArrayList<>(); // 初始化心形道具列表
 
 		this.background = new ImageView(new Image(getClass().getResource(backgroundImageName).toExternalForm()));
 		this.screenHeight = screenHeight;
@@ -64,8 +67,11 @@ public abstract class LevelParent extends Observable {
 	}
 
 	protected abstract void initializeFriendlyUnits();
+
 	protected abstract void checkIfGameOver();
+
 	protected abstract void spawnEnemyUnits();
+
 	protected abstract LevelView instantiateLevelView();
 
 	public Scene initializeScene() {
@@ -96,7 +102,9 @@ public abstract class LevelParent extends Observable {
 	private void updateScene() {
 		removeAllDestroyedActors();
 		spawnEnemyUnits();
+		spawnHearts(); // 调用生成心形道具的方法
 		updateActors();
+		handleHeartCollisions();
 		generateEnemyFire();
 		updateNumberOfEnemies();
 		handleEnemyPenetration();
@@ -121,21 +129,19 @@ public abstract class LevelParent extends Observable {
 			background.setFitHeight(screenHeight);
 			background.setFitWidth(screenWidth);
 
-			// 键盘按下事件
 			background.setOnKeyPressed(e -> {
 				KeyCode kc = e.getCode();
 				if (kc == KeyCode.UP) user.moveUp();
 				if (kc == KeyCode.DOWN) user.moveDown();
-				if (kc == KeyCode.LEFT) user.moveLeft(); // 新增：向左移动
-				if (kc == KeyCode.RIGHT) user.moveRight(); // 新增：向右移动
-				if (kc == KeyCode.SPACE) fireProjectile(); // 发射子弹
+				if (kc == KeyCode.LEFT) user.moveLeft();
+				if (kc == KeyCode.RIGHT) user.moveRight();
+				if (kc == KeyCode.SPACE) fireProjectile();
 			});
 
-			// 键盘释放事件
 			background.setOnKeyReleased(e -> {
 				KeyCode kc = e.getCode();
 				if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stopVertical();
-				if (kc == KeyCode.LEFT || kc == KeyCode.RIGHT) user.stopHorizontal(); // 新增：停止水平移动
+				if (kc == KeyCode.LEFT || kc == KeyCode.RIGHT) user.stopHorizontal();
 			});
 
 			root.getChildren().add(background);
@@ -144,7 +150,6 @@ public abstract class LevelParent extends Observable {
 			System.out.println("Background already initialized.");
 		}
 	}
-
 
 	private void fireProjectile() {
 		ActiveActorDestructible projectile = user.fireProjectile();
@@ -155,6 +160,56 @@ public abstract class LevelParent extends Observable {
 			}
 			userProjectiles.add(projectile);
 		}
+	}
+
+	private void spawnHearts() {
+		double spawnProbability = 0.01; // 心形生成的概率
+		if (Math.random() < spawnProbability) {
+			double xPos = screenWidth; // 心形从屏幕右边生成
+			double yPos = Math.random() * (screenHeight - SCREEN_HEIGHT_ADJUSTMENT); // 随机生成 y 坐标
+
+			Heart heart = new Heart(xPos, yPos); // 创建心形对象
+			hearts.add(heart); // 添加到心形列表
+			root.getChildren().add(heart); // 将心形添加到场景
+
+			// 创建从右向左移动的水平动画
+			TranslateTransition horizontalTransition = new TranslateTransition(Duration.seconds(5), heart);
+			horizontalTransition.setFromX(0); // 初始位置
+			horizontalTransition.setToX(-screenWidth); // 最终位置（移动到屏幕外）
+
+			// 创建上下抖动的垂直动画
+			Timeline verticalShake = new Timeline(new KeyFrame(Duration.millis(200), e -> {
+				heart.setTranslateY(heart.getTranslateY() + 5); // 向下移动
+			}), new KeyFrame(Duration.millis(400), e -> {
+				heart.setTranslateY(heart.getTranslateY() - 5); // 向上移动
+			}));
+			verticalShake.setCycleCount(Animation.INDEFINITE); // 无限循环
+
+			// 当水平动画结束时停止抖动并清理
+			horizontalTransition.setOnFinished(e -> {
+				verticalShake.stop(); // 停止抖动动画
+				hearts.remove(heart); // 从列表中移除
+				root.getChildren().remove(heart); // 从场景中移除
+			});
+
+			// 开始动画
+			horizontalTransition.play();
+			verticalShake.play();
+			System.out.println("Heart spawned at: " + xPos + ", " + yPos); // 调试输出
+		}
+	}
+
+	private void handleHeartCollisions() {
+		List<Heart> collectedHearts = new ArrayList<>();
+		for (Heart heart : hearts) {
+			if (user.getHitbox().getBoundsInParent().intersects(heart.getBoundsInParent())) {
+				user.incrementHealth(); // 玩家生命值增加
+				levelView.addHearts(user.getHealth()); // 更新左上角爱心
+				collectedHearts.add(heart);
+				root.getChildren().remove(heart); // 从场景中移除心形
+			}
+		}
+		hearts.removeAll(collectedHearts); // 从列表中移除收集的心形
 	}
 
 	private void generateEnemyFire() {
@@ -175,12 +230,7 @@ public abstract class LevelParent extends Observable {
 		enemyUnits.forEach(enemy -> enemy.updateActor());
 		userProjectiles.forEach(projectile -> projectile.updateActor());
 		enemyProjectiles.forEach(projectile -> projectile.updateActor());
-
-		for (ActiveActorDestructible enemy : enemyUnits) {
-			if (enemy instanceof Boss) {
-				((Boss) enemy).updateHealthBar();
-			}
-		}
+		hearts.forEach(Heart::updateActor);
 	}
 
 	private void removeAllDestroyedActors() {
