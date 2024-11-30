@@ -52,6 +52,7 @@ public class Heart extends ImageView {
         return isDestroyed;
     }
 }
+```java
 HeartDisplay Class
 The HeartDisplay class manages the display of hearts in the UI, representing the player's current health.
 
@@ -59,8 +60,8 @@ Key Features:
 
 Dynamically adds or removes hearts based on health changes.
 Displays hearts in a horizontal layout using an HBox container.
-java
-复制代码
+
+```java
 public class HeartDisplay {
     private static final int HEART_HEIGHT = 50;
     private HBox container;
@@ -95,6 +96,7 @@ public class HeartDisplay {
         return container;
     }
 }
+```java
 LevelView Class
 The LevelView class is responsible for managing the visual aspects of the level, such as displaying hearts, win images, and game over images.
 
@@ -103,8 +105,7 @@ Key Features:
 Displays the player's current health using the HeartDisplay class.
 Dynamically updates the heart display when hearts are gained or lost.
 Manages the win and game-over UI elements.
-java
-复制代码
+```java
 public class LevelView {
     private final HeartDisplay heartDisplay;
     private final WinImage winImage;
@@ -138,6 +139,7 @@ public class LevelView {
         heartDisplay.removeHeart();
     }
 }
+```java
 Heart Movement
 Hearts now move from right to left across the screen:
 
@@ -145,8 +147,7 @@ Movement: Handled via a TranslateTransition animation.
 Floating Effect: Added vertical jitter to simulate a floating effect.
 Example Implementation in LevelParent:
 
-java
-复制代码
+```java
 private void spawnHearts() {
     double spawnProbability = 0.01;
     if (Math.random() < spawnProbability) {
@@ -169,6 +170,7 @@ private void spawnHearts() {
         floatEffect.play();
     }
 }
+```java
 How to Use
 Heart Collection: Players collect hearts as they move across the screen.
 Heart Display: The heart display dynamically updates as health changes.
