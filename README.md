@@ -52,6 +52,7 @@ public class Heart extends ImageView {
         return isDestroyed;
     }
 }
+
 ```java
 HeartDisplay Class
 The HeartDisplay class manages the display of hearts in the UI, representing the player's current health.
