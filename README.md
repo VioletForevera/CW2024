@@ -52,9 +52,9 @@ public class Heart extends ImageView {
         return isDestroyed;
     }
 }
+```
 
-```java
-HeartDisplay Class
+### **`HeartDisplay Class**
 The HeartDisplay class manages the display of hearts in the UI, representing the player's current health.
 
 Key Features:
@@ -97,8 +97,8 @@ public class HeartDisplay {
         return container;
     }
 }
-```java
-LevelView Class
+```
+### **`LevelView Class**
 The LevelView class is responsible for managing the visual aspects of the level, such as displaying hearts, win images, and game over images.
 
 Key Features:
@@ -140,7 +140,7 @@ public class LevelView {
         heartDisplay.removeHeart();
     }
 }
-```java
+```
 Heart Movement
 Hearts now move from right to left across the screen:
 
@@ -171,7 +171,7 @@ private void spawnHearts() {
         floatEffect.play();
     }
 }
-```java
+```
 How to Use
 Heart Collection: Players collect hearts as they move across the screen.
 Heart Display: The heart display dynamically updates as health changes.
