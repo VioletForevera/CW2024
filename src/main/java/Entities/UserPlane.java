@@ -22,15 +22,16 @@ public class UserPlane extends FighterPlane {
 	private int verticalVelocityMultiplier;
 	private int horizontalVelocityMultiplier;
 	private int numberOfKills;
-	private final Group root; // 用于可视化场景中的元素
+	private int health; // 玩家当前的生命值
+	private final Group root;
 
 	public UserPlane(int initialHealth, Group root) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, initialHealth);
+		this.health = initialHealth;
 		verticalVelocityMultiplier = 0;
 		horizontalVelocityMultiplier = 0;
 		this.root = root;
 
-		// 初始化 hitbox 可视化
 		setHitboxSize(IMAGE_HEIGHT * 0.8, IMAGE_HEIGHT * 0.5);
 		setHitboxOffset(0, 20);
 		if (root != null) {
@@ -48,22 +49,18 @@ public class UserPlane extends FighterPlane {
 			double initialTranslateY = getTranslateY();
 			double initialTranslateX = getTranslateX();
 
-			// 垂直移动
 			this.moveVertically(VERTICAL_VELOCITY * verticalVelocityMultiplier);
 			double newPositionY = getLayoutY() + getTranslateY();
 			if (newPositionY < Y_UPPER_BOUND || newPositionY > Y_LOWER_BOUND) {
-				this.setTranslateY(initialTranslateY); // 恢复原位置
+				this.setTranslateY(initialTranslateY);
 			}
 
-			// 水平移动
 			this.moveHorizontally(HORIZONTAL_VELOCITY * horizontalVelocityMultiplier);
 			double newPositionX = getLayoutX() + getTranslateX();
 			if (newPositionX < X_LEFT_BOUND || newPositionX > X_RIGHT_BOUND) {
-				this.setTranslateX(initialTranslateX); // 恢复原位置
+				this.setTranslateX(initialTranslateX);
 			}
 		}
-
-		// 更新 hitbox 位置
 		updateHitbox();
 	}
 
@@ -74,7 +71,6 @@ public class UserPlane extends FighterPlane {
 
 	@Override
 	public ActiveActorDestructible fireProjectile() {
-		// 确保子弹的初始位置完全根据飞机的当前位置计算
 		double projectileX = getLayoutX() + getTranslateX() + PROJECTILE_X_POSITION_OFFSET;
 		double projectileY = getLayoutY() + getTranslateY() + PROJECTILE_Y_POSITION_OFFSET;
 
@@ -83,6 +79,24 @@ public class UserPlane extends FighterPlane {
 			projectile.visualizeHitbox(root);
 		}
 		return projectile;
+	}
+
+	@Override
+	public void takeDamage() {
+		if (health > 0) {
+			health--; // 减少生命值
+			if (health <= 0) {
+				destroy(); // 调用 destroy 方法标记对象已被摧毁
+			}
+		}
+	}
+
+	public void incrementHealth() {
+		health++;
+	}
+
+	public int getHealth() {
+		return health;
 	}
 
 	private boolean isMoving() {
@@ -99,7 +113,7 @@ public class UserPlane extends FighterPlane {
 
 	public void moveLeft() {
 		horizontalVelocityMultiplier = -1;
-	}
+	} 
 
 	public void moveRight() {
 		horizontalVelocityMultiplier = 1;

@@ -34,7 +34,7 @@ public class Controller implements Observer {
             InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         // If the current level is already loaded and not null, return to avoid reloading
         if (currentLevel != null && currentLevel.getClass().getName().equals(className)) {
-            System.out.println("Level is already loaded.");
+
             return;
         }
 
