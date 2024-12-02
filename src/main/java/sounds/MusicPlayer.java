@@ -4,12 +4,12 @@ import javax.sound.sampled.*;
 import java.io.InputStream;
 
 public class MusicPlayer {
+    private static MusicPlayer instance; // 单例实例
     private Clip clip;
     private FloatControl volumeControl;
 
-    public MusicPlayer(String resourcePath) {
+    private MusicPlayer(String resourcePath) {
         try {
-            // 使用类路径加载资源文件
             InputStream soundStream = getClass().getResourceAsStream(resourcePath);
             if (soundStream == null) {
                 throw new IllegalArgumentException("File not found: " + resourcePath);
@@ -19,7 +19,6 @@ public class MusicPlayer {
             clip = AudioSystem.getClip();
             clip.open(audioStream);
 
-            // 检查是否支持音量控制
             if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
             } else {
@@ -30,17 +29,25 @@ public class MusicPlayer {
         }
     }
 
+    // 静态方法获取单例实例
+    public static synchronized MusicPlayer getInstance(String resourcePath) {
+        if (instance == null) {
+            instance = new MusicPlayer(resourcePath);
+        }
+        return instance;
+    }
+
     public void play() {
         if (clip != null) {
             clip.start();
-            clip.loop(Clip.LOOP_CONTINUOUSLY); // 循环播放
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
         }
     }
 
     public void stop() {
         if (clip != null && clip.isRunning()) {
             clip.stop();
-            clip.setFramePosition(0); // 重置播放位置
+            clip.setFramePosition(0);
         }
     }
 
