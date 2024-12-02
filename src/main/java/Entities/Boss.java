@@ -114,7 +114,6 @@ public class Boss extends FighterPlane {
 		if (getHitbox() != null) {
 			getHitbox().setLayoutX(getLayoutX() + getTranslateX() + hitboxOffsetX);
 			getHitbox().setLayoutY(getLayoutY() + getTranslateY() + hitboxOffsetY);
-			System.out.println("Updated Boss hitbox: x=" + getHitbox().getLayoutX() + ", y=" + getHitbox().getLayoutY());
 		}
 	}
 

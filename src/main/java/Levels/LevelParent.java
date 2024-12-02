@@ -20,6 +20,7 @@ import javafx.scene.Node;
 import javafx.util.Duration;
 
 public abstract class LevelParent extends Observable {
+	private boolean isLevelSwitching= false;
 
 	private static final double SCREEN_HEIGHT_ADJUSTMENT = 150;
 	private static final int MILLISECOND_DELAY = 40;
@@ -95,9 +96,51 @@ public abstract class LevelParent extends Observable {
 	}
 
 	public void goToNextLevel(String levelName) {
-		setChanged();
-		notifyObservers(levelName);
+		if (isLevelSwitching) {
+			System.out.println("Already switching levels. Ignoring call.");
+			return; // 防止重复调用
+		}
+
+		System.out.println("Switching to next level: " + levelName);
+		isLevelSwitching = true; // 设置标志位，防止重复调用
+
+		// 停止当前的游戏循环
+		if (timeline != null && timeline.getStatus() == Animation.Status.RUNNING) {
+			timeline.stop();
+		}
+
+		// 清理当前关卡资源
+		cleanUpLevel();
+
+		// 延迟执行关卡切换，确保资源完全清理完成
+		Timeline switchTimeline = new Timeline(new KeyFrame(Duration.millis(100), e -> {
+			try {
+				setChanged();
+				notifyObservers(levelName); // 通知观察者切换关卡
+			} finally {
+				isLevelSwitching = false; // 切换完成后重置标志位
+			}
+		}));
+		switchTimeline.setCycleCount(1);
+		switchTimeline.play();
 	}
+	// 清理关卡的辅助方法
+	protected void cleanUpLevel() {
+		System.out.println("Cleaning up current level...");
+
+		// 停止动画和清理场景资源
+		root.getChildren().clear();
+
+		// 清空所有单位列表
+		friendlyUnits.clear();
+		enemyUnits.clear();
+		userProjectiles.clear();
+		enemyProjectiles.clear();
+		hearts.clear();
+
+		System.out.println("Level cleaned up successfully.");
+	}
+
 
 	private void updateScene() {
 		removeAllDestroyedActors();

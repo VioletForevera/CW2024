@@ -9,12 +9,11 @@ import java.awt.*;
 
 public class MainMenu extends JFrame {
 
-    private MusicPlayer musicPlayer;
     private int volumeLevel = 50; // 初始音量
 
     public MainMenu() {
-        // 使用类路径加载背景音乐
-        musicPlayer = new MusicPlayer("/com/example/demo/images/sound.wav");
+        // 初始化音乐播放器（单例模式）
+        MusicPlayer musicPlayer = MusicPlayer.getInstance("/com/example/demo/images/sound.wav");
         musicPlayer.play();
         musicPlayer.setVolume(volumeLevel / 100.0f);
 
@@ -33,8 +32,8 @@ public class MainMenu extends JFrame {
         JButton exitButton = createStyledButton("Exit");
 
         // 添加按钮事件监听器
-        startButton.addActionListener(e -> startGame());
-        settingsButton.addActionListener(e -> openSettings());
+        startButton.addActionListener(e -> startGame(musicPlayer));
+        settingsButton.addActionListener(e -> openSettings(musicPlayer));
         exitButton.addActionListener(e -> exitGame());
 
         // 设置按钮布局
@@ -64,10 +63,11 @@ public class MainMenu extends JFrame {
         return button;
     }
 
-    private void startGame() {
+    private void startGame(MusicPlayer musicPlayer) {
         System.out.println("Game Started!");
         this.dispose();
-        musicPlayer.stop(); // 开始游戏时停止背景音乐
+        // 决定是否停止或继续播放菜单音乐
+        musicPlayer.stop();
 
         new Thread(() -> {
             try {
@@ -78,7 +78,7 @@ public class MainMenu extends JFrame {
         }).start();
     }
 
-    private void openSettings() {
+    private void openSettings(MusicPlayer musicPlayer) {
         JDialog settingsDialog = new JDialog(this, "Settings", true);
         settingsDialog.setSize(400, 300);
         settingsDialog.setLocationRelativeTo(this);
