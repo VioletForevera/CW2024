@@ -48,3 +48,28 @@ public class GlobalMusic {
     }
 }
 ```
+### 2Bug Fix: Re-entering Level Two
+Resolved an issue where goToNextLevel was triggered multiple times during level transitions, causing players to return to Level Two. A boolean flag, isLevelSwitching, was introduced to ensure the transition process completes before accepting new triggers.
+
+#### Fixed Code:
+LevelParent.java
+
+```java
+private boolean isLevelSwitching = false;
+
+public void goToNextLevel(String levelName) {
+    if (isLevelSwitching) {
+        System.out.println("Level is already switching. Ignoring this call.");
+        return;
+    }
+    isLevelSwitching = true;
+
+    // Notify observers to transition levels
+    setChanged();
+    notifyObservers(levelName);
+
+    // Reset the flag after a delay to allow transition completion
+    Timeline delay = new Timeline(new KeyFrame(Duration.seconds(1), e -> isLevelSwitching = false));
+    delay.play();
+}
+```
