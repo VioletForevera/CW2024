@@ -1,47 +1,50 @@
-# Project Structure Refactoring
-The project has been reorganized into multiple packages to improve readability and maintainability. Each package has a specific purpose:
+# Game Project Update Log
 
-** Core
-Contains core functionality and base classes, such as ActiveActor, which serves as the parent class for all active entities in the game.
+## Overview
+This update introduces the following features and fixes:
+1. **Global Background Music**: Background music now plays seamlessly across different levels, maintaining continuity during gameplay.
+2. **Bug Fix for Re-entering Level Two**: Fixed an issue where transitioning to the next level could inadvertently return the player to Level Two due to multiple level transition triggers.
 
-** Entities
-Contains specific game entities, including:
+---
 
-Boss: The boss character in the game, which includes a shield and a health bar.
-EnemyPlane and UserPlane: Represent enemy and player-controlled planes.
-** Levels
-Manages different game levels:
+## Update Details
 
-LevelOne: The first level of the game, where the player battles standard enemies.
-LevelTwo: Introduces the boss fight along with additional mechanics.
-** Ui
-Manages user interface components, such as:
+### 1. Global Background Music
+Added the `GlobalMusic` class to manage background music playback globally. Using the Singleton pattern, the music player is instantiated only once, ensuring smooth playback across level transitions.
 
-ShieldImage: Displays the shield effect for the boss or player.
-HeartDisplay: Shows the player's remaining health visually.
-# Issues Encountered
-# Path Problems After Refactoring
-Problem: During the package reorganization, the paths to image assets (e.g., shield.png, bossplane.png) were temporarily broken.
-Solution: Adjusted all resource paths to use a consistent structure within the resources directory.
-# Temporary Shield Visibility Issue
-Problem: After refactoring, the boss's shield initially failed to display.
-Solution: Ensured ShieldImage was correctly added to the scene's root node and its position updated with the boss's movements.
-# Future Plans for Refactoring
-Enhance Utils Package
-Create utility classes for common tasks:
+#### New Code:
+**`GlobalMusic.java`**
+```java
+package Core;
 
-ResourceManager: Centralized resource loading for images and sounds.
-CollisionDetector: Simplified collision detection between entities.
-Extract Hitbox Management
-Move hitbox-related logic from ActiveActor to a dedicated HitboxManager class for cleaner code and easier debugging.
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
-Optimize LevelParent
-Refactor to abstract common level logic, allowing child classes to focus only on unique features.
+public class GlobalMusic {
+    private static GlobalMusic instance;
+    private MediaPlayer mediaPlayer;
 
-Introduce Design Patterns
-Apply patterns such as:
+    private GlobalMusic() {
+        Media music = new Media(getClass().getResource("/com/example/demo/audio/background_music.mp3").toExternalForm());
+        mediaPlayer = new MediaPlayer(music);
+        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE); // Loop indefinitely
+    }
 
-Factory Pattern for enemy creation.
-Observer Pattern for updating UI components based on game state changes.
-Summary
-This project structure and refactoring plan aim to enhance the codebase's maintainability and scalability, ensuring a more robust and modular design.
+    public static GlobalMusic getInstance() {
+        if (instance == null) {
+            instance = new GlobalMusic();
+        }
+        return instance;
+    }
+
+    public void play() {
+        if (mediaPlayer.getStatus() != MediaPlayer.Status.PLAYING) {
+            mediaPlayer.play();
+        }
+    }
+
+    public void stop() {
+        mediaPlayer.stop();
+    }
+}
+```
