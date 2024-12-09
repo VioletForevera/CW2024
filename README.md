@@ -1,47 +1,123 @@
-# Project Structure Refactoring
-The project has been reorganized into multiple packages to improve readability and maintainability. Each package has a specific purpose:
+### Game Project Update: Mutation Boss, Pause Function, and New Sounds
+Overview
+This update introduces several exciting features and improvements to the game, including a new boss character with unique attack patterns, a pause functionality for better gameplay control, and enhanced audio effects for a more immersive experience. Below, we outline the major additions, refactoring, and updates made in this release.
 
-** Core
-Contains core functionality and base classes, such as ActiveActor, which serves as the parent class for all active entities in the game.
+Key Features
+1. **Mutation Boss with Special Attack Patterns**
+The MutationBoss1 class is a new boss type introduced in this update. It inherits from the Boss class and features unique movement and attack patterns:
 
-** Entities
-Contains specific game entities, including:
+Randomized Movement: The boss has a predefined movement pattern (up, down, stay) that is shuffled to create dynamic behavior.
+Triple Projectile Attack: The boss can fire projectiles in three directions — straight, left-up, and left-down — making it more challenging for the player.
+Highlighted Code Snippet:
 
-Boss: The boss character in the game, which includes a shield and a health bar.
-EnemyPlane and UserPlane: Represent enemy and player-controlled planes.
-** Levels
-Manages different game levels:
+**Code snippet:**
+```java
+public void fireProjectile(Group root, List<ActiveActorDestructible> enemyProjectiles) {
+    if (Math.random() < BOSS_FIRE_RATE) {
+        double xPos = getLayoutX() + getTranslateX();
+        double yPos = getLayoutY() + getTranslateY() + PROJECTILE_Y_POSITION_OFFSET;
 
-LevelOne: The first level of the game, where the player battles standard enemies.
-LevelTwo: Introduces the boss fight along with additional mechanics.
-** Ui
-Manages user interface components, such as:
+        // Creating projectiles
+        BossProjectile straightProjectile = new BossProjectile(xPos, yPos, -15, 0);
+        BossProjectile leftUpProjectile = new BossProjectile(xPos, yPos - 50, -12, -5);
+        BossProjectile leftDownProjectile = new BossProjectile(xPos, yPos + 50, -12, 5);
 
-ShieldImage: Displays the shield effect for the boss or player.
-HeartDisplay: Shows the player's remaining health visually.
-# Issues Encountered
-# Path Problems After Refactoring
-Problem: During the package reorganization, the paths to image assets (e.g., shield.png, bossplane.png) were temporarily broken.
-Solution: Adjusted all resource paths to use a consistent structure within the resources directory.
-# Temporary Shield Visibility Issue
-Problem: After refactoring, the boss's shield initially failed to display.
-Solution: Ensured ShieldImage was correctly added to the scene's root node and its position updated with the boss's movements.
-# Future Plans for Refactoring
-Enhance Utils Package
-Create utility classes for common tasks:
+        // Add projectiles to scene and list
+        root.getChildren().addAll(straightProjectile, leftUpProjectile, leftDownProjectile);
+        enemyProjectiles.add(straightProjectile);
+        enemyProjectiles.add(leftUpProjectile);
+        enemyProjectiles.add(leftDownProjectile);
 
-ResourceManager: Centralized resource loading for images and sounds.
-CollisionDetector: Simplified collision detection between entities.
-Extract Hitbox Management
-Move hitbox-related logic from ActiveActor to a dedicated HitboxManager class for cleaner code and easier debugging.
+        System.out.println("Firing projectiles from position: (" + xPos + ", " + yPos + ")");
+    }
+}
+```
+The Mutation Boss also includes health management, collision detection, and shield synchronization with its movements.
 
-Optimize LevelParent
-Refactor to abstract common level logic, allowing child classes to focus only on unique features.
+2. **Pause Functionality**
+A pause menu has been added to allow players to temporarily halt gameplay. This includes:
 
-Introduce Design Patterns
-Apply patterns such as:
+A resume button to continue the game.
+A quit button to exit the game.
+A translucent menu with intuitive design to enhance usability.
+Highlighted Code Snippet:
 
-Factory Pattern for enemy creation.
-Observer Pattern for updating UI components based on game state changes.
-Summary
-This project structure and refactoring plan aim to enhance the codebase's maintainability and scalability, ensuring a more robust and modular design.
+**Code snippet:**
+```java
+private void togglePause() {
+    isPaused = !isPaused;
+    if (isPaused) {
+        System.out.println("Game paused.");
+        timeline.pause();
+        pauseMenu.setVisible(true);
+        pauseMenu.toFront();
+    } else {
+        System.out.println("Game resumed.");
+        timeline.play();
+        pauseMenu.setVisible(false);
+    }
+}
+```
+The pause menu can be triggered by pressing the P key during gameplay.
+
+3. **Enhanced Sound Effects**
+New audio effects have been added to make the game more engaging:
+
+Explosion sound: Plays when enemy planes are destroyed.
+Damage sound: Plays when the user takes damage.
+These effects are seamlessly integrated into the existing game events, providing better feedback for players.
+
+4. **Off-Screen Projectile Cleanup**
+To optimize performance, projectiles that leave the screen are now automatically removed. This prevents memory leaks and ensures smoother gameplay.
+
+Highlighted Code Snippet:
+
+**Code snippet:**
+```java
+private void handleEnemyPenetration() {
+    for (ActiveActorDestructible enemy : enemyUnits) {
+        if (enemyHasPenetratedDefenses(enemy)) {
+            user.takeDamage();
+            enemy.destroy();
+        }
+    }
+
+    for (ActiveActorDestructible projectile : enemyProjectiles) {
+        if (actorHasPenetratedDefenses(projectile)) {
+            projectile.destroy();
+        }
+    }
+
+    for (ActiveActorDestructible projectile : userProjectiles) {
+        if (actorHasPenetratedDefenses(projectile)) {
+            projectile.destroy();
+        }
+    }
+}
+
+private boolean actorHasPenetratedDefenses(ActiveActorDestructible actor) {
+    return Math.abs(actor.getTranslateX()) > 1000;
+}
+```
+This method ensures that all projectiles and enemy units exceeding screen boundaries are destroyed to maintain memory efficiency.
+
+Updated Files
+The following files were modified in this update:
+
+Core/FighterPlane.java
+Entities/Boss.java
+Entities/BossProjectile.java
+Entities/MutationBoss1.java
+Entities/UserPlane.java
+Levels/LevelParent.java
+Levels/LevelThree.java
+Ui/MainMenu.java
+com/example/demo/controller/Controller.java
+com/example/demo/controller/Main.java
+sounds/MusicPlayer.java
+resources/images/background1.png
+resources/images/background2.png
+resources/images/background3.png
+Newly Added Assets
+resources/images/explosion.wav: Sound effect for explosions.
+resources/images/mutation1.png: Sprite image for the Mutation Boss.
