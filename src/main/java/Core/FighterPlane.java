@@ -3,6 +3,7 @@ package Core;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import sounds.MusicPlayer;
 
 public abstract class FighterPlane extends ActiveActorDestructible {
 
@@ -31,10 +32,14 @@ public abstract class FighterPlane extends ActiveActorDestructible {
 		health--;
 		System.out.println("FighterPlane took damage. Remaining health: " + health);
 		if (healthAtZero()) {
+			// 播放爆炸音效，设置音量为 50%
+			MusicPlayer.playEffect("/com/example/demo/images/explosion.wav", 0.7f);
 			this.destroy();
 			System.out.println("FighterPlane destroyed.");
 		}
 	}
+
+
 
 	public void setHitboxSize(double width, double height) {
 		if (hitbox != null) {
@@ -62,15 +67,13 @@ public abstract class FighterPlane extends ActiveActorDestructible {
 		}
 	}
 
-	// 可视化 hitbox
 	public void visualizeHitbox(Group root) {
 		if (hitbox != null && !root.getChildren().contains(hitbox)) {
-			root.getChildren().add(hitbox); // 将 hitbox 添加到场景中
-			System.out.println("Hitbox visualized in the scene.");
-		} else {
-			System.out.println("Hitbox is null or already visualized.");
+			root.getChildren().add(hitbox);
+			System.out.println("Hitbox visualized in the scene for: " + this.getClass().getSimpleName());
 		}
 	}
+
 
 	protected double getProjectileXPosition(double xPositionOffset) {
 		return getLayoutX() + getTranslateX() + xPositionOffset;
@@ -95,4 +98,9 @@ public abstract class FighterPlane extends ActiveActorDestructible {
 		updateHitbox();   // 同步更新 hitbox 的位置
 		System.out.println("Updated FighterPlane actor.");
 	}
+	public void setHealth(int health) {
+		this.health = health;
+		System.out.println("Health set to: " + health);
+	}
+
 }

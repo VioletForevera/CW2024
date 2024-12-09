@@ -65,18 +65,18 @@ public class MainMenu extends JFrame {
 
     private void startGame(MusicPlayer musicPlayer) {
         System.out.println("Game Started!");
-        this.dispose();
-        // 决定是否停止或继续播放菜单音乐
+        this.dispose(); // 关闭当前菜单窗口
+
+        // 停止菜单音乐
         musicPlayer.stop();
 
-        new Thread(() -> {
-            try {
-                Main.main(new String[]{});
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }).start();
+        // 启动游戏或重启游戏
+        Main.startOrRestartGame();
     }
+
+
+
+
 
     private void openSettings(MusicPlayer musicPlayer) {
         JDialog settingsDialog = new JDialog(this, "Settings", true);

@@ -17,7 +17,14 @@ import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.scene.Node;
+import javafx.scene.text.Text; // 新增
+import javafx.scene.text.Font; // 新增
+import javafx.scene.paint.Color; // 新增
+import javafx.scene.control.Button; // 新增
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import Entities.MutationBoss1;
+
 
 public abstract class LevelParent extends Observable {
 	private boolean isLevelSwitching= false;
@@ -28,14 +35,14 @@ public abstract class LevelParent extends Observable {
 	private final double screenWidth;
 	private final double enemyMaximumYPosition;
 
-	private final Group root;
+	public final Group root;
 	private final Timeline timeline;
 	private final UserPlane user;
 	private final Scene scene;
 	private final ImageView background;
 
 	private final List<ActiveActorDestructible> friendlyUnits;
-	private final List<ActiveActorDestructible> enemyUnits;
+	public final List<ActiveActorDestructible> enemyUnits;
 	private final List<ActiveActorDestructible> userProjectiles;
 	private final List<ActiveActorDestructible> enemyProjectiles;
 	private final List<Heart> hearts; // 存储心形道具
@@ -45,6 +52,8 @@ public abstract class LevelParent extends Observable {
 
 	private boolean isSceneInitialized = false;
 	private boolean isBackgroundInitialized = false;
+	private boolean isPaused = false; // 是否暂停的标志位
+	private VBox pauseMenu;          // 暂停菜单
 
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth) {
 		this.root = new Group();
@@ -65,6 +74,8 @@ public abstract class LevelParent extends Observable {
 		this.currentNumberOfEnemies = 0;
 		initializeTimeline();
 		friendlyUnits.add(user);
+		// 初始化暂停菜单
+		initializePauseMenu();
 	}
 
 	protected abstract void initializeFriendlyUnits();
@@ -74,6 +85,7 @@ public abstract class LevelParent extends Observable {
 	protected abstract void spawnEnemyUnits();
 
 	protected abstract LevelView instantiateLevelView();
+
 
 	public Scene initializeScene() {
 		if (!isSceneInitialized) {
@@ -85,8 +97,56 @@ public abstract class LevelParent extends Observable {
 		} else {
 			System.out.println("Scene is already initialized.");
 		}
+
+		// 添加键盘事件监听
+		scene.setOnKeyPressed(e -> {
+			if (e.getCode() == KeyCode.P) {
+				togglePause();
+			}
+		});
+
 		return scene;
 	}
+
+	private void initializePauseMenu() {
+		pauseMenu = new VBox(10); // 垂直布局，间隔 10 像素
+		pauseMenu.setStyle("-fx-background-color: rgba(0, 0, 0, 0.7); -fx-padding: 20;"); // 设置样式
+		pauseMenu.setPrefSize(300, 200); // 设置菜单宽度和高度
+
+		// 修改菜单位置，直接指定坐标
+		pauseMenu.setLayoutX(500); // 设置菜单左上角的 X 坐标
+		pauseMenu.setLayoutY(100); // 设置菜单左上角的 Y 坐标
+
+		Text pauseText = new Text("Game Paused");
+		pauseText.setFont(new Font(20));
+		pauseText.setFill(Color.WHITE);
+
+		Button resumeButton = new Button("Resume");
+		resumeButton.setOnAction(e -> togglePause()); // 点击恢复按钮，切换暂停状态
+
+		Button quitButton = new Button("Quit");
+		quitButton.setOnAction(e -> System.exit(0)); // 退出游戏
+
+		pauseMenu.getChildren().addAll(pauseText, resumeButton, quitButton);
+		pauseMenu.setVisible(false); // 初始隐藏
+		root.getChildren().add(pauseMenu);
+	}
+
+	// 改进的 togglePause 方法
+	private void togglePause() {
+		isPaused = !isPaused; // 切换暂停状态
+		if (isPaused) {
+			System.out.println("Game paused.");
+			timeline.pause(); // 暂停游戏逻辑
+			pauseMenu.setVisible(true); // 显示暂停菜单
+			pauseMenu.toFront(); // 确保菜单在最前
+		} else {
+			System.out.println("Game resumed.");
+			timeline.play(); // 恢复游戏逻辑
+			pauseMenu.setVisible(false); // 隐藏暂停菜单
+		}
+	}
+
 
 	public void startGame() {
 		background.requestFocus();
@@ -113,7 +173,7 @@ public abstract class LevelParent extends Observable {
 		cleanUpLevel();
 
 		// 延迟执行关卡切换，确保资源完全清理完成
-		Timeline switchTimeline = new Timeline(new KeyFrame(Duration.millis(100), e -> {
+		Timeline switchTimeline = new Timeline(new KeyFrame(Duration.millis(2), e -> {
 			try {
 				setChanged();
 				notifyObservers(levelName); // 通知观察者切换关卡
@@ -125,7 +185,7 @@ public abstract class LevelParent extends Observable {
 		switchTimeline.play();
 	}
 	// 清理关卡的辅助方法
-	protected void cleanUpLevel() {
+	public void cleanUpLevel() {
 		System.out.println("Cleaning up current level...");
 
 		// 停止动画和清理场景资源
@@ -257,24 +317,47 @@ public abstract class LevelParent extends Observable {
 
 	private void generateEnemyFire() {
 		enemyUnits.forEach(enemy -> {
-			ActiveActorDestructible projectile = ((FighterPlane) enemy).fireProjectile();
-			if (projectile != null) {
-				root.getChildren().add(projectile);
-				if (projectile instanceof EnemyProjectile) {
-					((EnemyProjectile) projectile).visualizeHitbox(root);
+			if (enemy instanceof MutationBoss1) {
+				((MutationBoss1) enemy).fireProjectile(root, enemyProjectiles); // 调用 MutationBoss1 特定的方法
+			} else if (enemy instanceof Boss) {
+				System.out.println("Boss detected. Calling its fireProjectile method...");
+				ActiveActorDestructible projectile = ((Boss) enemy).fireProjectile(); // 调用 Boss 的方法
+				if (projectile != null) {
+					root.getChildren().add(projectile); // 添加到场景中
+					enemyProjectiles.add(projectile);   // 添加到子弹列表
 				}
-				enemyProjectiles.add(projectile);
+			} else if (enemy instanceof FighterPlane) {
+				System.out.println("Other FighterPlane detected. Calling its fireProjectile method...");
+				ActiveActorDestructible projectile = ((FighterPlane) enemy).fireProjectile(); // 默认行为
+				if (projectile != null) {
+					root.getChildren().add(projectile); // 添加到场景中
+					enemyProjectiles.add(projectile);   // 添加到子弹列表
+				}
+			} else {
+				System.out.println("Unknown enemy type: " + enemy.getClass().getSimpleName());
 			}
 		});
 	}
 
+
+
 	private void updateActors() {
-		friendlyUnits.forEach(plane -> plane.updateActor());
-		enemyUnits.forEach(enemy -> enemy.updateActor());
+		friendlyUnits.forEach(unit -> unit.updateActor());
+		enemyUnits.forEach(unit -> unit.updateActor());
 		userProjectiles.forEach(projectile -> projectile.updateActor());
-		enemyProjectiles.forEach(projectile -> projectile.updateActor());
-		hearts.forEach(Heart::updateActor);
+		enemyProjectiles.forEach(projectile -> {
+			projectile.updateActor(); // 调用子弹的更新逻辑
+
+
+			// 如果子弹超出屏幕，移除它
+			if (projectile.getLayoutX() < 0) {
+				root.getChildren().remove(projectile);
+				enemyProjectiles.remove(projectile);
+				System.out.println("Projectile removed for leaving screen bounds.");
+			}
+		});
 	}
+
 
 	private void removeAllDestroyedActors() {
 		removeDestroyedActors(friendlyUnits);
@@ -327,6 +410,22 @@ public abstract class LevelParent extends Observable {
 				enemy.destroy();
 			}
 		}
+
+		for (ActiveActorDestructible projectile : enemyProjectiles) {
+			if (actorHasPenetratedDefenses(projectile)) {
+				projectile.destroy();
+			}
+		}
+
+		for (ActiveActorDestructible projectile : userProjectiles) {
+			if (actorHasPenetratedDefenses(projectile)) {
+				projectile.destroy();
+			}
+		}
+	}
+
+	private boolean actorHasPenetratedDefenses(ActiveActorDestructible actor) {
+		return Math.abs(actor.getTranslateX()) > 1000;
 	}
 
 	private void updateLevelView() {
@@ -375,19 +474,34 @@ public abstract class LevelParent extends Observable {
 	}
 
 	protected void addEnemyUnit(ActiveActorDestructible enemy) {
+		if (enemyUnits.contains(enemy)) {
+			System.out.println("Enemy already in enemyUnits: " + enemy.getClass().getSimpleName());
+			return;
+		}
+
 		enemyUnits.add(enemy);
 		root.getChildren().add(enemy);
+		System.out.println("Enemy added: " + enemy.getClass().getSimpleName());
 
 		if (enemy instanceof Boss) {
 			Boss boss = (Boss) enemy;
-			root.getChildren().add(boss.getShieldImage());
-			root.getChildren().add(boss.getHealthBar());
+
+			if (!root.getChildren().contains(boss.getShieldImage())) {
+				root.getChildren().add(boss.getShieldImage());
+				System.out.println("Shield image added for Boss.");
+			}
+			if (!root.getChildren().contains(boss.getHealthBar())) {
+				root.getChildren().add(boss.getHealthBar());
+				System.out.println("Health bar added for Boss.");
+			}
 		}
 
 		if (enemy instanceof ActiveActor) {
 			((ActiveActor) enemy).visualizeHitbox(root);
+			System.out.println("Hitbox visualized for: " + enemy.getClass().getSimpleName());
 		}
 	}
+
 
 	protected double getEnemyMaximumYPosition() {
 		return enemyMaximumYPosition;
