@@ -66,7 +66,19 @@ New audio effects have been added to make the game more engaging:
 Explosion sound: Plays when enemy planes are destroyed.
 Damage sound: Plays when the user takes damage.
 These effects are seamlessly integrated into the existing game events, providing better feedback for players.
-
+**Code snippet:**
+```java
+public void takeDamage() {
+		health--;
+		System.out.println("FighterPlane took damage. Remaining health: " + health);
+		if (healthAtZero()) {
+			// Play the explosion sound effect and set the volume to 70%.
+			MusicPlayer.playEffect("/com/example/demo/images/explosion.wav", 0.7f);
+			this.destroy();
+			System.out.println("FighterPlane destroyed.");
+		}
+	}
+```java
 4. **Off-Screen Projectile Cleanup**
 To optimize performance, projectiles that leave the screen are now automatically removed. This prevents memory leaks and ensures smoother gameplay.
 
