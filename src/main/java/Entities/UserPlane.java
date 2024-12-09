@@ -140,3 +140,4 @@ public class UserPlane extends FighterPlane {
 		numberOfKills++;
 	}
 }
+

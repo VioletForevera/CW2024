@@ -60,4 +60,34 @@ public class MusicPlayer {
             System.err.println("Volume control not available.");
         }
     }
+
+    public static void playEffect(String resourcePath, float volume) {
+        try {
+            System.out.println("Attempting to load resource: " + resourcePath); // 调试信息
+            InputStream soundStream = MusicPlayer.class.getResourceAsStream(resourcePath);
+            if (soundStream == null) {
+                throw new IllegalArgumentException("File not found: " + resourcePath);
+            }
+
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundStream);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+
+            // 设置音量
+            if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                FloatControl volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                float min = volumeControl.getMinimum(); // 最低音量
+                float max = volumeControl.getMaximum(); // 最高音量
+                float gain = min + (max - min) * volume; // 根据传入的 volume 值计算音量
+                volumeControl.setValue(gain); // 设置音量
+            } else {
+                System.err.println("Volume control not supported for this clip.");
+            }
+
+            clip.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

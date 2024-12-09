@@ -16,12 +16,12 @@ public class Boss extends FighterPlane {
 	private static final String IMAGE_NAME = "bossplane.png";
 	private static final double INITIAL_X_POSITION = 1000.0;
 	private static final double INITIAL_Y_POSITION = 400;
-	private static final double PROJECTILE_Y_POSITION_OFFSET = 75.0;
+	public static final double PROJECTILE_Y_POSITION_OFFSET = 75.0;
 	private static final double BOSS_FIRE_RATE = 0.04;
 	private static final double BOSS_SHIELD_PROBABILITY = 0.002;
 	private static final int IMAGE_HEIGHT = 300;
 	private static final int VERTICAL_VELOCITY = 8;
-	private static final int HEALTH = 100;
+	private static final int HEALTH = 1;
 	private static final int MOVE_FREQUENCY_PER_CYCLE = 5;
 	private static final int ZERO = 0;
 	private static final int MAX_FRAMES_WITH_SAME_MOVE = 10;
@@ -127,18 +127,36 @@ public class Boss extends FighterPlane {
 	@Override
 	public ActiveActorDestructible fireProjectile() {
 		if (Math.random() < BOSS_FIRE_RATE) {
-			return new BossProjectile(getLayoutY() + getTranslateY() + PROJECTILE_Y_POSITION_OFFSET);
+			double xPos = getLayoutX() + getTranslateX(); // 子弹的初始 X 位置
+			double yPos = getLayoutY() + getTranslateY() + PROJECTILE_Y_POSITION_OFFSET; // 子弹的初始 Y 位置
+			double velocityX = -15; // 水平速度
+			double velocityY = 0;   // 垂直速度
+
+			// 创建子弹并打印调试信息
+			BossProjectile projectile = new BossProjectile(xPos, yPos, velocityX, velocityY);
+			System.out.println("BossProjectile created at: (" + xPos + ", " + yPos + ")");
+			System.out.println("BossProjectile velocity: (" + velocityX + ", " + velocityY + ")");
+			return projectile;
+		} else {
+			System.out.println("Projectile firing skipped due to fire rate.");
 		}
 		return null;
 	}
+
+
 
 	@Override
 	public void takeDamage() {
 		if (!isShielded) {
 			super.takeDamage();
 			updateHealthBar();
+			if (getHealth() <= 0) {
+				System.out.println("Boss defeated. Preparing second phase...");
+				this.destroy(); // 标记为已销毁，便于 LevelThree 检测
+			}
 		}
 	}
+
 
 	public void updateHealthBar() {
 		double healthPercentage = Math.max(0, getHealth() / maxHealth);
