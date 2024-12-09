@@ -78,7 +78,7 @@ public void takeDamage() {
 			System.out.println("FighterPlane destroyed.");
 		}
 	}
-```java
+```
 4. **Off-Screen Projectile Cleanup**
 To optimize performance, projectiles that leave the screen are now automatically removed. This prevents memory leaks and ensures smoother gameplay.
 
