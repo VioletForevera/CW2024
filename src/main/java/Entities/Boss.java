@@ -70,7 +70,7 @@ public class Boss extends FighterPlane {
 	 * The initial health value of the boss.
 	 * This represents the total number of health points the boss starts with.
 	 */
-	private static final int HEALTH = 2;
+	private static final int HEALTH = 19;
 	/**
 	 * The number of moves in each movement cycle.
 	 * Defines how frequently the boss changes its movement direction.
