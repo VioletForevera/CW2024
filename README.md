@@ -1,3 +1,21 @@
+# COMP2042 Coursework
+
+## Table of Contents
+- [GitHub Repository](#github-repository)
+- [Compilation Instructions](#compilation-instructions)
+- [Implemented and Working Properly](#implemented-and-working-properly)
+- [Implemented but Not Working Properly](#implemented-but-not-working-properly)
+- [Features Not Implemented](#features-not-implemented)
+- [New Java Classes](#new-java-classes)
+- [Modified Java Classes](#modified-java-classes)
+- [Unexpected Problems](#unexpected-problems)
+
+## GitHub Repository
+- GitHub Link: [Repository Link](https://github.com/VioletForevera/DMS-CW2024.git))
+
+
+
+
 **Implemented and Working Properly**
 
 **Multi-level flow (LevelOne, LevelTwo, LevelThree):**  
