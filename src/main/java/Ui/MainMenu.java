@@ -7,36 +7,49 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+/**
+ * Represents the main menu of the game, providing options to start the game,
+ * access settings, and exit the game.
+ */
 public class MainMenu extends JFrame {
 
-    private int volumeLevel = 50; // 初始音量
+    /**
+     * The initial volume level of the game.
+     * This variable stores the volume level as a percentage (0 to 100),
+     * where 50 represents the default starting volume.
+     */
+    private int volumeLevel = 50; // Initial volume level
 
+
+    /**
+     * Constructs the main menu and initializes the UI components and background music.
+     */
     public MainMenu() {
-        // 初始化音乐播放器（单例模式）
+        // Initialize the music player (singleton pattern)
         MusicPlayer musicPlayer = MusicPlayer.getInstance("/com/example/demo/images/sound.wav");
         musicPlayer.play();
         musicPlayer.setVolume(volumeLevel / 100.0f);
 
-        // 设置窗口标题和基本配置
+        // Set window title and basic configuration
         setTitle("Game Menu");
         setSize(950, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // 设置背景图片
+        // Set the background image
         setContentPane(new BackgroundPanel());
 
-        // 创建按钮
+        // Create buttons
         JButton startButton = createStyledButton("Start Game");
         JButton settingsButton = createStyledButton("Settings");
         JButton exitButton = createStyledButton("Exit");
 
-        // 添加按钮事件监听器
+        // Add action listeners to buttons
         startButton.addActionListener(e -> startGame(musicPlayer));
         settingsButton.addActionListener(e -> openSettings(musicPlayer));
         exitButton.addActionListener(e -> exitGame());
 
-        // 设置按钮布局
+        // Configure button layout
         JPanel buttonPanel = new JPanel();
         buttonPanel.setOpaque(false);
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
@@ -53,6 +66,12 @@ public class MainMenu extends JFrame {
         add(buttonPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Creates a styled button with the specified text.
+     *
+     * @param text the text to display on the button.
+     * @return the styled button.
+     */
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text);
         button.setFont(new Font("Arial", Font.BOLD, 24));
@@ -63,21 +82,27 @@ public class MainMenu extends JFrame {
         return button;
     }
 
+    /**
+     * Starts the game, stops the menu music, and closes the main menu window.
+     *
+     * @param musicPlayer the music player instance to stop.
+     */
     private void startGame(MusicPlayer musicPlayer) {
         System.out.println("Game Started!");
-        this.dispose(); // 关闭当前菜单窗口
+        this.dispose(); // Close the current menu window
 
-        // 停止菜单音乐
+        // Stop menu music
         musicPlayer.stop();
 
-        // 启动游戏或重启游戏
-        Main.startOrRestartGame();
+        // Launch the game
+        Main.startGame();
     }
 
-
-
-
-
+    /**
+     * Opens the settings dialog for adjusting the volume level.
+     *
+     * @param musicPlayer the music player instance to update the volume.
+     */
     private void openSettings(MusicPlayer musicPlayer) {
         JDialog settingsDialog = new JDialog(this, "Settings", true);
         settingsDialog.setSize(400, 300);
@@ -112,10 +137,18 @@ public class MainMenu extends JFrame {
         settingsDialog.setVisible(true);
     }
 
+    /**
+     * Exits the game by terminating the application.
+     */
     private void exitGame() {
         System.exit(0);
     }
 
+    /**
+     * The main method to launch the main menu.
+     *
+     * @param args the command-line arguments.
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             MainMenu menu = new MainMenu();
@@ -123,9 +156,20 @@ public class MainMenu extends JFrame {
         });
     }
 
+    /**
+     * Represents the background panel for the main menu, displaying an image.
+     */
     private class BackgroundPanel extends JPanel {
+        /**
+         * Represents the background image used in the game or UI component.
+         * This variable holds the {@link Image} object to be displayed as the background.
+         */
         private Image backgroundImage;
 
+
+        /**
+         * Constructs a BackgroundPanel and loads the background image.
+         */
         public BackgroundPanel() {
             backgroundImage = new ImageIcon(getClass().getResource("/com/example/demo/images/mainMenuBackground.png")).getImage();
         }

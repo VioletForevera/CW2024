@@ -8,26 +8,82 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Represents the first mutation of the Boss enemy in the game.
+ * This class defines unique behaviors, including custom movement patterns and firing projectiles in multiple directions.
+ */
 public class MutationBoss1 extends Boss {
 
+    /**
+     * The file path to the image resource representing the visual appearance of the mutation entity.
+     * This image is used for rendering the entity in the game.
+     */
     private static final String IMAGE_PATH = "/com/example/demo/images/mutation1.png";
-    private static final int IMAGE_HEIGHT = 250;
-    private static final int HEALTH = 120;
-    private static final int VERTICAL_VELOCITY = 8;
-    private static final int Y_POSITION_UPPER_BOUND = -100;
-    private static final int Y_POSITION_LOWER_BOUND = 475;
-    private static final int MAX_FRAMES_WITH_SAME_MOVE = 20;
-    public static final double BOSS_FIRE_RATE = 0.1;
-    private final List<Integer> movePattern;
-    private int indexOfCurrentMove;
-    private int framesInCurrentMove;
-    private List<ActiveActorDestructible> enemyProjectiles;
 
+    /**
+     * The initial health of the entity.
+     * This value represents the total health points the entity starts with.
+     */
+    private static final int HEALTH = 10;
+
+    /**
+     * The vertical velocity of the entity.
+     * This value defines how fast the entity moves vertically.
+     */
+    private static final int VERTICAL_VELOCITY = 8;
+
+    /**
+     * The upper boundary for the entity's vertical position.
+     * Prevents the entity from moving above this value.
+     */
+    private static final int Y_POSITION_UPPER_BOUND = -100;
+
+    /**
+     * The lower boundary for the entity's vertical position.
+     * Prevents the entity from moving below this value.
+     */
+    private static final int Y_POSITION_LOWER_BOUND = 475;
+
+    /**
+     * The maximum number of frames during which the entity can move in the same direction.
+     * After reaching this limit, the movement direction is reset or shuffled.
+     */
+    private static final int MAX_FRAMES_WITH_SAME_MOVE = 20;
+
+    /**
+     * The firing rate for the boss entity.
+     * This value defines the probability (0 to 1) of firing a projectile during each frame.
+     */
+    public static final double BOSS_FIRE_RATE = 0.1;
+
+    /**
+     * A list representing the movement pattern of the entity.
+     * Contains values that define the vertical movement during each frame.
+     */
+    private final List<Integer> movePattern;
+
+    /**
+     * Tracks the current position or step in a sequence of moves or actions.
+     * This variable is used to determine the index of the current move being processed or executed.
+     */
+    private int indexOfCurrentMove;
+
+    /**
+     * Tracks the number of frames spent in the current movement.
+     * Used to manage movement patterns and determine when to change the move direction.
+     */
+    private int framesInCurrentMove;
+
+
+
+    /**
+     * Constructs a new instance of MutationBoss1 with default properties.
+     * Initializes movement patterns and health.
+     */
     public MutationBoss1() {
         super();
         setImage(new Image(getClass().getResourceAsStream(IMAGE_PATH)));
         setHealth(HEALTH);
-        setHitboxSize(IMAGE_HEIGHT * 0.8, IMAGE_HEIGHT * 0.6);
 
         movePattern = new ArrayList<>();
         initializeMovePattern();
@@ -37,43 +93,36 @@ public class MutationBoss1 extends Boss {
         System.out.println("MutationBoss1 initialized.");
     }
 
-    public MutationBoss1(Group root) {
-        this();
-        if (root != null) {
-            root.getChildren().add(getShieldImage());
-            root.getChildren().add(getHealthBar());
-            System.out.println("MutationBoss1 added to the scene.");
-        }
-    }
-
+    /**
+     * Initializes the movement pattern of the boss.
+     * Adds vertical movement options (up, down, stop) and shuffles them for random behavior.
+     */
     private void initializeMovePattern() {
-        // 添加多种垂直移动模式：上移、下移、停留
         for (int i = 0; i < 5; i++) {
-            movePattern.add(VERTICAL_VELOCITY);  // 向下移动
-            movePattern.add(-VERTICAL_VELOCITY); // 向上移动
-            movePattern.add(0);                  // 停止
+            movePattern.add(VERTICAL_VELOCITY);  // Move down
+            movePattern.add(-VERTICAL_VELOCITY); // Move up
+            movePattern.add(0);                  // Stop
         }
-        Collections.shuffle(movePattern); // 打乱模式，增加随机性
+        Collections.shuffle(movePattern); // Randomize the pattern
         System.out.println("Movement pattern initialized: " + movePattern);
     }
 
+    /**
+     * Updates the boss's position based on its current movement pattern.
+     * Ensures that the boss stays within the screen boundaries and switches movement periodically.
+     */
     @Override
     public void updatePosition() {
         double initialTranslateY = getTranslateY();
 
-        // 获取当前移动步伐
         int moveStep = movePattern.get(indexOfCurrentMove);
-
-        // 执行移动
         moveVertically(moveStep);
         double currentPosition = getLayoutY() + getTranslateY();
 
-        // 边界检查，确保在屏幕范围内
         if (currentPosition < Y_POSITION_UPPER_BOUND || currentPosition > Y_POSITION_LOWER_BOUND) {
-            setTranslateY(initialTranslateY); // 恢复到合法位置
+            setTranslateY(initialTranslateY); // Reset to a valid position
         }
 
-        // 切换到下一个移动模式
         framesInCurrentMove++;
         if (framesInCurrentMove >= MAX_FRAMES_WITH_SAME_MOVE) {
             framesInCurrentMove = 0;
@@ -81,55 +130,51 @@ public class MutationBoss1 extends Boss {
             System.out.println("Switching to next move: " + movePattern.get(indexOfCurrentMove));
         }
 
-        // 同步护盾和血条位置
-        getShieldImage().setLayoutX(getLayoutX() + getTranslateX());
-        getShieldImage().setLayoutY(getLayoutY() + getTranslateY());
-        getHealthBar().setLayoutX(getLayoutX() + getTranslateX());
-        getHealthBar().setLayoutY(getLayoutY() + getTranslateY() + IMAGE_HEIGHT);
-
-        // 更新碰撞箱位置
         updateHitbox();
     }
 
-
-
+    /**
+     * Updates the actor's state, including position and health bar.
+     */
     @Override
     public void updateActor() {
-        updatePosition();  // 更新位置
-        updateHealthBar(); // 更新血条
-
+        updatePosition();
+        updateHealthBar();
     }
 
+    /**
+     * Fires projectiles in multiple directions with predefined velocities.
+     * Adds the projectiles to the scene and an enemy projectiles list.
+     *
+     * @param root              the group to which projectiles will be added.
+     * @param enemyProjectiles  the list tracking all enemy projectiles.
+     */
     public void fireProjectile(Group root, List<ActiveActorDestructible> enemyProjectiles) {
         if (Math.random() < BOSS_FIRE_RATE) {
             double xPos = getLayoutX() + getTranslateX();
             double yPos = getLayoutY() + getTranslateY() + PROJECTILE_Y_POSITION_OFFSET;
 
-            // 创建三个方向的子弹
             BossProjectile straightProjectile = new BossProjectile(xPos, yPos, -15, 0);
             BossProjectile leftUpProjectile = new BossProjectile(xPos, yPos - 50, -12, -5);
             BossProjectile leftDownProjectile = new BossProjectile(xPos, yPos + 50, -12, 5);
 
-            // 调试信息
             System.out.println("Firing projectiles from position: (" + xPos + ", " + yPos + ")");
             System.out.println("Straight projectile velocity: (-15, 0)");
             System.out.println("Left-up projectile velocity: (-12, -5)");
             System.out.println("Left-down projectile velocity: (-12, 5)");
 
-            // 将子弹添加到场景和列表
             root.getChildren().addAll(straightProjectile, leftUpProjectile, leftDownProjectile);
             enemyProjectiles.add(straightProjectile);
             enemyProjectiles.add(leftUpProjectile);
             enemyProjectiles.add(leftDownProjectile);
 
-            // 确认添加
             System.out.println("enemyProjectiles size after addition: " + enemyProjectiles.size());
         }
     }
 
-
-
-
+    /**
+     * Handles the boss taking damage. If health reaches zero, it is marked as destroyed and removed from the scene.
+     */
     @Override
     public void takeDamage() {
         if (getHealth() <= 0) {
@@ -142,9 +187,8 @@ public class MutationBoss1 extends Boss {
 
         if (getHealth() <= 0) {
             System.out.println("MutationBoss1 has been defeated.");
-            this.destroy(); // 标记为已销毁
+            this.destroy();
 
-            // 从场景和敌人列表中移除
             Group parent = (Group) getParent();
             if (parent != null) {
                 parent.getChildren().remove(this);

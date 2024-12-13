@@ -6,28 +6,66 @@ import Ui.WinImage;
 import javafx.scene.Group;
 
 /**
- * Represents the view layer of the level, responsible for displaying hearts, win and game over images,
- * and updating the UI as the game progresses.
+ * Represents the view layer of a level, managing the UI elements such as hearts, win image,
+ * and game over image. Responsible for updating the visual components as the game progresses.
  */
 public class LevelView {
 
+	/**
+	 * X-coordinate for the heart display on the screen.
+	 */
 	private static final double HEART_DISPLAY_X_POSITION = 5;
+
+	/**
+	 * Y-coordinate for the heart display on the screen.
+	 */
 	private static final double HEART_DISPLAY_Y_POSITION = 25;
+
+	/**
+	 * X-coordinate for the win image on the screen.
+	 */
 	private static final int WIN_IMAGE_X_POSITION = 355;
+
+	/**
+	 * Y-coordinate for the win image on the screen.
+	 */
 	private static final int WIN_IMAGE_Y_POSITION = 175;
+
+	/**
+	 * X-coordinate for the game over image on the screen.
+	 */
 	private static final int LOSS_SCREEN_X_POSITION = -160;
+
+	/**
+	 * Y-coordinate for the game over image on the screen.
+	 */
 	private static final int LOSS_SCREEN_Y_POSITION = -375;
 
+	/**
+	 * The root container of the scene where all UI elements will be added.
+	 */
 	private final Group root;
+
+	/**
+	 * The win image displayed when the player wins the level.
+	 */
 	private final WinImage winImage;
+
+	/**
+	 * The game over image displayed when the player loses the level.
+	 */
 	private final GameOverImage gameOverImage;
+
+	/**
+	 * The heart display showing the player's remaining health.
+	 */
 	private final HeartDisplay heartDisplay;
 
 	/**
-	 * Constructs a LevelView instance with the specified root group and number of hearts to display.
+	 * Constructs a LevelView instance with the specified root group and initial number of hearts.
 	 *
 	 * @param root            the root container of the scene where the UI elements will be added.
-	 * @param heartsToDisplay the initial number of hearts to be displayed.
+	 * @param heartsToDisplay the initial number of hearts to display.
 	 */
 	public LevelView(Group root, int heartsToDisplay) {
 		this.root = root;
@@ -37,7 +75,8 @@ public class LevelView {
 	}
 
 	/**
-	 * Displays the heart display on the screen, showing the current number of hearts.
+	 * Displays the heart display in the scene, showing the player's remaining health.
+	 * Ensures the heart display is only added once to the root container.
 	 */
 	public void showHeartDisplay() {
 		if (!root.getChildren().contains(heartDisplay.getContainer())) {
@@ -47,6 +86,7 @@ public class LevelView {
 
 	/**
 	 * Displays the win image on the screen when the player wins the level.
+	 * Ensures the win image is only added once to the root container.
 	 */
 	public void showWinImage() {
 		if (!root.getChildren().contains(winImage)) {
@@ -57,6 +97,7 @@ public class LevelView {
 
 	/**
 	 * Displays the game over image on the screen when the player loses the game.
+	 * Ensures the game over image is only added once to the root container.
 	 */
 	public void showGameOverImage() {
 		if (!root.getChildren().contains(gameOverImage)) {
@@ -65,7 +106,7 @@ public class LevelView {
 	}
 
 	/**
-	 * Removes hearts from the display when the player's health decreases.
+	 * Removes hearts from the heart display when the player's health decreases.
 	 *
 	 * @param heartsRemaining the current number of hearts to display after removal.
 	 */
@@ -78,7 +119,7 @@ public class LevelView {
 	}
 
 	/**
-	 * Adds hearts to the display when the player's health increases.
+	 * Adds hearts to the heart display when the player's health increases.
 	 *
 	 * @param heartsRemaining the current number of hearts to display after addition.
 	 */

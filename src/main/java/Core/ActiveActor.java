@@ -4,11 +4,31 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
+/**
+ * The ActiveActor class serves as a base class for all active game entities.
+ * It extends the {@link ImageView} class and provides functionality for movement,
+ * hitbox management, and collision detection.
+ */
 public abstract class ActiveActor extends ImageView {
-
+	/**
+	 * The base location of image resources used in the application.
+	 * This string is used as a prefix for locating image files.
+	 */
 	private static final String IMAGE_LOCATION = "/com/example/demo/images/";
-	private Rectangle hitbox; // 用于碰撞检测的 hitbox
+	/**
+	 * A rectangular area representing the hitbox of the object.
+	 * The hitbox is used for collision detection during gameplay.
+	 */
+	private Rectangle hitbox; // The hitbox used for collision detection
 
+	/**
+	 * Constructs an ActiveActor instance with the specified image, size, and initial position.
+	 *
+	 * @param imageName   the name of the image file to use for the actor
+	 * @param imageHeight the height of the image
+	 * @param initialXPos the initial X position of the actor
+	 * @param initialYPos the initial Y position of the actor
+	 */
 	public ActiveActor(String imageName, int imageHeight, double initialXPos, double initialYPos) {
 		this.setImage(new javafx.scene.image.Image(getClass().getResource(IMAGE_LOCATION + imageName).toExternalForm()));
 		this.setLayoutX(initialXPos);
@@ -16,54 +36,72 @@ public abstract class ActiveActor extends ImageView {
 		this.setFitHeight(imageHeight);
 		this.setPreserveRatio(true);
 
-		// 初始化 hitbox
+		// Initialize the hitbox
 		hitbox = new Rectangle();
-		hitbox.setFill(Color.TRANSPARENT); // 确保 hitbox 透明
-		hitbox.setStroke(Color.RED); // 边框颜色设置为红色用于可视化调试
+		hitbox.setFill(Color.TRANSPARENT); // Ensure the hitbox is transparent
+		hitbox.setStroke(Color.RED); // Set the border color to red for debugging
 		hitbox.setStrokeWidth(1);
-		updateHitbox(); // 初始化时同步 hitbox 位置
+		updateHitbox(); // Synchronize the hitbox position during initialization
 	}
 
+	/**
+	 * Updates the position of the actor. This method must be implemented by subclasses.
+	 */
 	public abstract void updatePosition();
 
-	// 更新 hitbox 的位置
+	/**
+	 * Updates the position of the hitbox to match the actor's current position.
+	 */
 	protected void updateHitbox() {
 		hitbox.setX(getLayoutX() + getTranslateX());
 		hitbox.setY(getLayoutY() + getTranslateY());
 	}
 
-	// 公共方法用于更新 hitbox，供外部类调用
+	/**
+	 * Updates the hitbox. This method is provided for external classes to call.
+	 */
 	public void updateActorHitbox() {
-		updateHitbox(); // 调用 protected 方法
+		updateHitbox(); // Calls the protected method
 	}
 
-	// 设置 hitbox 的大小
+	/**
+	 * Sets the size of the hitbox.
+	 *
+	 * @param width  the width of the hitbox
+	 * @param height the height of the hitbox
+	 */
 	public void setHitboxSize(double width, double height) {
 		if (hitbox != null) {
 			this.hitbox.setWidth(width);
 			this.hitbox.setHeight(height);
-			updateHitbox(); // 确保每次调整尺寸后立即同步位置
+			updateHitbox(); // Synchronize position after resizing
 		}
 	}
 
-	// 获取当前的 hitbox
+	/**
+	 * Retrieves the current hitbox.
+	 *
+	 * @return the hitbox as a {@link Rectangle}
+	 */
 	public Rectangle getHitbox() {
 		return hitbox;
 	}
 
-	// 可视化 hitbox（仅用于调试）
-	public void visualizeHitbox(javafx.scene.Group root) {
-		if (!root.getChildren().contains(hitbox)) {
-			root.getChildren().add(hitbox);
-		}
-	}
-
-	// 移动函数
+	/**
+	 * Moves the actor horizontally by a specified amount and updates the hitbox.
+	 *
+	 * @param horizontalMove the amount to move horizontally
+	 */
 	protected void moveHorizontally(double horizontalMove) {
 		this.setTranslateX(getTranslateX() + horizontalMove);
 		updateHitbox();
 	}
 
+	/**
+	 * Moves the actor vertically by a specified amount and updates the hitbox.
+	 *
+	 * @param verticalMove the amount to move vertically
+	 */
 	protected void moveVertically(double verticalMove) {
 		this.setTranslateY(getTranslateY() + verticalMove);
 		updateHitbox();

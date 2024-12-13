@@ -8,8 +8,18 @@ import javafx.scene.image.ImageView;
  */
 public class Heart extends ImageView {
 
+    /**
+     * Path to the heart image resource.
+     * This constant specifies the location of the heart image used in the game UI.
+     */
     private static final String HEART_IMAGE_PATH = "/com/example/demo/images/heart.png";
+
+    /**
+     * Indicates whether the object has been destroyed.
+     * This flag is used to track the state of the object, such as whether it has been removed from the game.
+     */
     private boolean isDestroyed;
+
 
     /**
      * Constructs a Heart object at a specified position.

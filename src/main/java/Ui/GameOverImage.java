@@ -5,16 +5,50 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
+/**
+ * Represents the game over screen displayed when the player loses the game.
+ * Includes a background image and an exit button to quit the application.
+ */
 public class GameOverImage extends Pane {
 
-	private static final String IMAGE_NAME = "/com/example/demo/images/gameover.png";
-	private static final int HEIGHT = 800;
-	private static final int WIDTH = 1400;
+	/**
+	 * The file path to the game over image.
+	 * This constant specifies the location of the image resource used to display the game over screen.
+	 */
+	private static final String IMAGE_NAME = "/com/example/demo/images/gameover.png"; // Path to the game over image
 
-	private final ImageView gameOverImage;
-	private final Button exitButton;
-	private final Button returnButton;
+	/**
+	 * The height of the game over image, in pixels.
+	 * This constant defines the vertical size of the image displayed when the game is over.
+	 */
+	private static final int HEIGHT = 800; // Height of the game over image
 
+	/**
+	 * The width of the game over image, in pixels.
+	 * This constant defines the horizontal size of the image displayed when the game is over.
+	 */
+	private static final int WIDTH = 1400; // Width of the game over image
+
+
+	/**
+	 * An ImageView used to display the game over image.
+	 * This image appears when the player loses the game.
+	 */
+	private final ImageView gameOverImage; // ImageView to display the game over image
+
+	/**
+	 * A button that allows the player to exit the game.
+	 * Clicking this button will terminate the application.
+	 */
+	private final Button exitButton; // Button to exit the game
+
+
+	/**
+	 * Constructs a GameOverImage instance with the specified position on the screen.
+	 *
+	 * @param xPosition the x-coordinate for positioning the pane.
+	 * @param yPosition the y-coordinate for positioning the pane.
+	 */
 	public GameOverImage(double xPosition, double yPosition) {
 		// Setup game over image
 		gameOverImage = new ImageView(new Image(getClass().getResource(IMAGE_NAME).toExternalForm()));
@@ -26,37 +60,21 @@ public class GameOverImage extends Pane {
 		// Setup Exit button
 		exitButton = new Button("Exit Game");
 		styleButton(exitButton);
-		exitButton.setLayoutX(WIDTH / 2 - 150); // Left side
-		exitButton.setLayoutY(HEIGHT - 80);
-		exitButton.setOnAction(event -> System.exit(0)); // Exit the application
-
-		// Setup Return button
-		returnButton = new Button("Return to Menu");
-		styleButton(returnButton);
-		returnButton.setLayoutX(WIDTH / 2 + 30); // Right side
-		returnButton.setLayoutY(HEIGHT - 80);
-		returnButton.setOnAction(event -> returnToMenu()); // Return to main menu logic
+		exitButton.setLayoutX(WIDTH / 2 - 150); // Center button horizontally
+		exitButton.setLayoutY(HEIGHT - 80); // Position button near the bottom
+		exitButton.setOnAction(event -> System.exit(0)); // Exit the application on button click
 
 		// Add components to the pane
-		this.getChildren().addAll(gameOverImage, exitButton, returnButton);
+		this.getChildren().addAll(gameOverImage, exitButton);
 		this.setLayoutX(xPosition);
 		this.setLayoutY(yPosition);
 	}
 
-	// Return to menu logic (placeholder for implementation)
-	private void returnToMenu() {
-		System.out.println("Returning to main menu...");
-		// 隐藏当前窗口（假设 GameOverImage 在主窗口的 Scene 中）
-		this.getScene().getWindow().hide();
-
-		// 创建并显示主菜单
-		javax.swing.SwingUtilities.invokeLater(() -> {
-			MainMenu mainMenu = new MainMenu();
-			mainMenu.setVisible(true);
-		});
-	}
-
-	// Apply styles to buttons
+	/**
+	 * Applies styling to a button, including hover effects for visual feedback.
+	 *
+	 * @param button the button to style.
+	 */
 	private void styleButton(Button button) {
 		button.setStyle(
 				"-fx-font-size: 16px; " +
