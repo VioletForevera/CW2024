@@ -11,7 +11,7 @@
 - [Unexpected Problems](#unexpected-problems)
 
 ## GitHub Repository
-- GitHub Link: [Repository Link](https://github.com/VioletForevera/DMS-CW2024.git)
+- GitHub Link: [Repository Link]https://github.com/VioletForevera/DMS-CW2024.git
 
 ## Compilation Instructions
 
