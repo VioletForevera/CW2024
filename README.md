@@ -1,4 +1,4 @@
-# Game Project Update Log
+# 2/12 Game Project Update Log
 
 ## Overview
 This update introduces the following features and fixes:
