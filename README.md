@@ -13,6 +13,20 @@
 ## GitHub Repository
 - GitHub Link: [Repository Link](https://github.com/VioletForevera/DMS-CW2024.git)
 
+## Compilation Instructions
+
+### Prerequisites
+1. Clone the repository:
+    ```bash
+    git clone (https://github.com/VioletForevera/DMS-CW2024.git)
+    ```
+2. Open the cloned repository in IntelliJ IDEA.
+3. **Java Development Kit (JDK)**: Version **19.0.2**.
+4. **JavaFX SDK**: Set SDK to 19. (**Ctrl + Alt + Shift + S**)
+5. If Maven not working properly, **Right Click** `pom.xml`. Select `Maven` > `Reimport`.
+
+### Running
+1. run the file: src/main/java/Ui/MainMenu.java
 
 
 
