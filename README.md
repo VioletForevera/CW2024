@@ -18,7 +18,7 @@
 ### Prerequisites
 1. Clone the repository:
     ```bash
-    git clone (https://github.com/VioletForevera/DMS-CW2024.git)
+    git clone https://github.com/VioletForevera/DMS-CW2024.git
     ```
 2. Open the cloned repository in IntelliJ IDEA.
 3. **Java Development Kit (JDK)**: Version **19.0.2**.
