@@ -16,7 +16,7 @@
 
 
 
-**Implemented and Working Properly**
+## Implemented and Working Properly
 
 **Multi-level flow (LevelOne, LevelTwo, LevelThree):**  
 Players can defeat enemies or bosses to fulfill passing conditions. The game transitions smoothly between levels, and the logic is accurate.
@@ -50,21 +50,21 @@ Bullets and enemies out of screen range are automatically destroyed, preventing 
 
 ---
 
-**Implemented but Not Working Properly**
+## Implemented but Not Working Properly
 
 **The ability to return to the main menu to restart the game:**  
 Tried to let players return to the main menu and restart the whole game process after the game ends. Due to the JavaFX `Application.launch()` limitation, restarting in the same process triggers `IllegalStateException`. Attempts to hide the window and rebuild the scene were unsuccessful, so this feature is not fully functional in the current version.
 
 ---
 
-**Features Not Implemented**
+## Features Not Implemented
 
 **Restart the game flow completely from the main menu:**  
 Originally planned to allow the player to restart the entire game cycle from the main menu without exiting the app. After multiple attempts, this feature was abandoned. Players must close and restart the application to restart the game.
 
 ---
 
-**New Java Classes**
+## New Java Classes
 
 Comparing the structure before and after the changes, the following classes are new and introduce new features and a clearer structure:
 
@@ -86,7 +86,7 @@ Music and sound effects management class. Provides `play()`, `stop()`, `setVolum
 
 ---
 
-**Modified Java Classes**
+## Modified Java Classes
 
 **LevelParent and its subclasses (LevelOne, LevelTwo, LevelThree)**  
 **6/11 Update:**  
@@ -155,7 +155,7 @@ Subsequent updates integrate `PauseMenu`, `GlobalMusic`, and `Win/GameOver` menu
 
 ---
 
-**Unexpected Problems encountered**
+## Unexpected Problems encountered
 
 **Repeated scene initialization:**  
 The `isSceneInitialized` flag and checks in `initializeScene()` prevent duplicate scene setups.
