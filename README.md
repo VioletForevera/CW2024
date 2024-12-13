@@ -155,7 +155,7 @@ Subsequent updates integrate `PauseMenu`, `GlobalMusic`, and `Win/GameOver` menu
 
 ---
 
-## Unexpected Problems encountered
+## Unexpected Problems
 
 **Repeated scene initialization:**  
 The `isSceneInitialized` flag and checks in `initializeScene()` prevent duplicate scene setups.
