@@ -26,7 +26,7 @@
 5. If Maven not working properly, **Right Click** `pom.xml`. Select `Maven` > `Reimport`.
 
 ### Running
-1. run the file: src/main/java/Ui/MainMenu.java
+1. Run the file: src/main/java/Ui/MainMenu.java
 
 
 
